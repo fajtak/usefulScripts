@@ -1,0 +1,15 @@
+Logging out destroys your ticket . you need to somehow:
+
+Find it
+Copy it
+point your kerberos libs to it
+keep renewing it (optional).
+For 1 klist will help : first line says ticket cache: 2 depends on 1, if it is FILE:/tmp/krb5_XXXXXXX of DIR:/SOME/PATH all you have to do is copy it:
+
+cp /tmp/krb5_XXXXXXX /tmp/krb5_tmux_XXXXXXX) 
+Make sure that only you can read it.
+
+For 3 set env var KRB5CCNAME to FILE:/tmp/krb5_tmux_XXXXXXX:
+
+export KRB5CCNAME=FILE:/tmp/krb5_tmux_XXXXXXX
+step 4 can be achieved with krenew from the kstart package (look it up)
