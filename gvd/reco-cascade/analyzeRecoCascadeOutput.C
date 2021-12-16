@@ -87,20 +87,46 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 	TH1D* h_tRes = new TH1D("h_tRes","#delta T of reco hits; #delta T [ns]; NoE [#]",100,-50,50);
 	histograms.insert(std::make_pair("h_tRes",h_tRes));
 
+	TH1D* h_chi2 = new TH1D("h_chi2","#chi^{2} ; #chi^{2} [1]; NoE [#]",100,0,20);
+	histograms.insert(std::make_pair("h_chi2",h_chi2));
+
+	TH1D* h_like = new TH1D("h_like","Likelihood; Likelihood [1]; NoE [#]",50,0,5);
+	histograms.insert(std::make_pair("h_like",h_like));
+
+	TH1D* h_likeHitOnly = new TH1D("h_likeHitOnly","Likelihood hit only; Likelihood_{HitOnly} [1]; NoE [#]",200,0,20);
+	histograms.insert(std::make_pair("h_likeHitOnly",h_likeHitOnly));
 
 	if (isMCFile)
 	{
 		TH1D* h_energyMC = new TH1D("h_energyMC","MC energy; E_{MC} [TeV]; NoE [#]",2000,0,20000);
 		histograms.insert(std::make_pair("h_energyMC",h_energyMC));
 
+		TH1D* h_energyMCNW = new TH1D("h_energyMCNW","MC energy; E_{MC} [TeV]; NoE [#]",2000,0,20000);
+		histograms.insert(std::make_pair("h_energyMCNW",h_energyMCNW));
+
 		TH1D* h_logEnergyMC = new TH1D("h_logEnergyMC","MC Log(energy); log_{10}(E_{MC} [TeV]) ; NoE [#]",60,0,6);
 		histograms.insert(std::make_pair("h_logEnergyMC",h_logEnergyMC));
+
+		TH1D* h_logEnergyMCNW = new TH1D("h_logEnergyMCNW","MC Log(energy); log_{10}(E_{MC} [TeV]) ; NoE [#]",60,0,6);
+		histograms.insert(std::make_pair("h_logEnergyMCNW",h_logEnergyMCNW));
 
 		TH1D* h_thetaMC = new TH1D("h_thetaMC","MC theta; #theta_{MC} [deg.]; NoE [#]",20,0,200);
 		histograms.insert(std::make_pair("h_thetaMC",h_thetaMC));
 
+		TH1D* h_thetaMCNW = new TH1D("h_thetaMCNW","MC theta; #theta_{MC} [deg.]; NoE [#]",20,0,200);
+		histograms.insert(std::make_pair("h_thetaMCNW",h_thetaMCNW));
+
 		TH1D* h_cosThetaMC = new TH1D("h_cosThetaMC","MC cos(#theta); cos(#theta_{MC}) [1]; NoE [#]",20,-1,1);
 		histograms.insert(std::make_pair("h_cosThetaMC",h_cosThetaMC));
+
+		TH1D* h_cosThetaMCNW = new TH1D("h_cosThetaMCNW","MC cos(#theta); cos(#theta_{MC}) [1]; NoE [#]",20,-1,1);
+		histograms.insert(std::make_pair("h_cosThetaMCNW",h_cosThetaMCNW));
+
+		TH1D* h_distanceCSMC = new TH1D("h_distanceCSMC","MC distance to center string; Distance_{CS} [m]; NoE [#]",20,0,200);
+		histograms.insert(std::make_pair("h_distanceCSMC",h_distanceCSMC));
+
+		TH1D* h_distanceCSMCNW = new TH1D("h_distanceCSMCNW","MC distance to center string; Distance_{CS} [m]; NoE [#]",20,0,200);
+		histograms.insert(std::make_pair("h_distanceCSMCNW",h_distanceCSMCNW));
 
 		TH1D* h_mismatchEnergy = new TH1D("h_mismatchEnergy","Mismatch energy; E_{rec}/E_{MC}; NoE [#]",100,0,10);
 		histograms.insert(std::make_pair("h_mismatchEnergy",h_mismatchEnergy));
@@ -131,6 +157,12 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 
 		TH2D* h_mismatchAngleVsE = new TH2D("h_mismatchAngleVsE","Mismatch angle vs. energy; log_{10}(E) [TeV]; Mismatch angle [deg.]; NoE [#]",60,0,6,180,0,180);
 		histograms2D.insert(std::make_pair("h_mismatchAngleVsE",h_mismatchAngleVsE));
+
+		TH2D* h_likeVsE = new TH2D("h_likeVsE","Likelihood vs. energy; log_{10}(E) [TeV]; Likelihood [1]; NoE [#]",60,0,6,50,0,5);
+		histograms2D.insert(std::make_pair("h_likeVsE",h_likeVsE));
+
+		TH2D* h_likeHitOnlyVsE = new TH2D("h_likeHitOnlyVsE","LikelihoodHitOnly vs. energy; log_{10}(E) [TeV]; Likelihood_{HitOnly} [1]; NoE [#]",60,0,6,200,0,20);
+		histograms2D.insert(std::make_pair("h_likeHitOnlyVsE",h_likeHitOnlyVsE));
 	}
 
 	return histograms.size();
@@ -156,11 +188,25 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 	TCanvas* c_tRes = new TCanvas("c_tRes","TResiduals",800,600);
 	histograms["h_tRes"]->Draw("HIST");
 
+	TCanvas* c_chi2 = new TCanvas("c_chi2","Chi2",800,600);
+	histograms["h_chi2"]->Draw("HIST");
+
+	TCanvas* c_like = new TCanvas("c_like","Likelihood",800,600);
+	histograms["h_like"]->Draw("HIST");
+
+	TCanvas* c_likeHitOnly = new TCanvas("c_likeHitOnly","LikelihoodHitOnly",800,600);
+	histograms["h_likeHitOnly"]->Draw("HIST");
 
 	if (isMCFile)
 	{
 		TCanvas* c_energyMC = new TCanvas("c_energyMC","EnergyMC",800,600);
 		histograms["h_energyMC"]->Draw("HIST");
+
+		TCanvas* c_cosThetaMC = new TCanvas("c_cosThetaMC","CosThetaMC",800,600);
+		histograms["h_cosThetaMC"]->Draw("HIST");
+
+		TCanvas* c_cosThetaMCNW = new TCanvas("c_cosThetaMCNW","CosThetaMCNW",800,600);
+		histograms["h_cosThetaMCNW"]->Draw("HIST");
 
 		TCanvas* c_mismatchEnergy = new TCanvas("c_mismatchEnergy","MismatchEnergy",800,600);
 		histograms["h_mismatchEnergy"]->Draw("HIST");
@@ -176,7 +222,6 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 
 		TCanvas* c_causHitPurity = new TCanvas("c_causHitPurity","CausalityHitPurity",800,600);
 		histograms["h_causHitPurity"]->Draw("HIST");
-
 
 		TCanvas* c_hitEfficiency = new TCanvas("c_hitEfficiency","HitEfficiency",800,600);
 		histograms["h_hitEfficiency"]->Draw("HIST");
@@ -195,6 +240,13 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 		// histograms2D["h_mismatchAngleVsE"]->ProfileX()->Draw("SAME");
 		histograms2D["h_mismatchAngleVsE"]->QuantilesX()->Draw("SAME");
 
+		TCanvas* c_likeVsE = new TCanvas("c_likeVsE","LikelihoodVsE",800,600);
+		histograms2D["h_likeVsE"]->Draw("COLZ");
+		histograms2D["h_likeVsE"]->QuantilesX()->Draw("SAME");
+
+		TCanvas* c_likeHitOnlyVsE = new TCanvas("c_likeHitOnlyVsE","LikelihoodHitOnlyVsE",800,600);
+		histograms2D["h_likeHitOnlyVsE"]->Draw("COLZ");
+		histograms2D["h_likeHitOnlyVsE"]->QuantilesX()->Draw("SAME");
 	}
 
 	return 0;
@@ -289,8 +341,8 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		// if (myCascade->GetFitPos().Z() > 610)
 		if (myCascade->GetFitPos().Z() > 580)
 			continue;
-		if (myCascade->GetLikelihoodHitOnly() > 1.5)
-			continue;
+		// if (myCascade->GetLikelihoodHitOnly() > 1.5)
+			// continue;
 		// if (myCascade->GetEnergyRec() < 10)
 			// continue;
 		// if (myCascade->GetDistanceCS() > 100)
@@ -305,6 +357,9 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		v_histograms["h_thetaRec"]->Fill(myCascade->GetThetaRec(),eventWeight);
 		v_histograms["h_cosThetaRec"]->Fill(TMath::Cos(myCascade->GetThetaRec()*TMath::RadToDeg()),eventWeight);
 		v_histograms["h_nHits"]->Fill(myCascade->GetNHitsTFil(),eventWeight);
+		v_histograms["h_chi2"]->Fill(myCascade->GetChi2(),eventWeight);
+		v_histograms["h_like"]->Fill(myCascade->GetLikelihood(),eventWeight);
+		v_histograms["h_likeHitOnly"]->Fill(myCascade->GetLikelihoodHitOnly(),eventWeight);
 
 		for (int i = 0; i < myCascade->GetNImpulseIDs(); ++i)
 		{
@@ -314,9 +369,15 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		if (isMCFile)
 		{
 			v_histograms["h_energyMC"]->Fill(myMCCascade->GetShowerEnergy(),eventWeight);
+			v_histograms["h_energyMCNW"]->Fill(myMCCascade->GetShowerEnergy());
 			v_histograms["h_thetaMC"]->Fill(myCascade->GetThetaMC(),eventWeight);
+			v_histograms["h_thetaMCNW"]->Fill(myCascade->GetThetaMC());
+			v_histograms["h_distanceCSMC"]->Fill(myCascade->GetDistanceCSMC(),eventWeight);
+			v_histograms["h_distanceCSMCNW"]->Fill(myCascade->GetDistanceCSMC());
 			v_histograms["h_cosThetaMC"]->Fill(TMath::Cos(myCascade->GetThetaMC()*TMath::DegToRad()),eventWeight);
+			v_histograms["h_cosThetaMCNW"]->Fill(TMath::Cos(myCascade->GetThetaMC()*TMath::DegToRad()));
 			v_histograms["h_logEnergyMC"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),eventWeight);
+			v_histograms["h_logEnergyMCNW"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()));
 			v_histograms["h_mismatchEnergy"]->Fill(myCascade->GetEnergyRec()/myMCCascade->GetShowerEnergy(),eventWeight);
 			TVector3 trueDir;
 			trueDir.SetMagThetaPhi(1,myMCCascade->GetNeutrinoZenith(),myMCCascade->GetNeutrinoAzimuth());
@@ -325,6 +386,8 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 			v_histograms["h_mismatchAngle"]->Fill(trueDir.Angle(recDir)*TMath::RadToDeg(),eventWeight);
 			v_histograms["h_mismatchPosition"]->Fill((myCascade->GetFitPos()-myCascade->GetPosMC()).Mag(),eventWeight);
 			v_histograms2D["h_mismatchAngleVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),trueDir.Angle(recDir)*TMath::RadToDeg(),eventWeight);
+			v_histograms2D["h_likeVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),myCascade->GetLikelihood(),eventWeight);
+			v_histograms2D["h_likeHitOnlyVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),myCascade->GetLikelihoodHitOnly(),eventWeight);
 			Int_t nSignalHitsTrue = 0;
 			for (int i = 0; i < myMCCascade->GetNHits(); ++i)
 			{

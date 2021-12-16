@@ -39,16 +39,34 @@ int estimateRecoEfficiencies()
 {
 	gStyle->SetPalette(kRainBow);
 
-	TString triggerLevel = "/Data/BaikalData/2019/cluster2/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.00002000_00004000.root";
-	TString recoLevel = "/Data/BaikalData/2019/cluster1/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.00002000_00004000.root";
+	// TString triggerLevel = "/Data/BaikalData/2019/cluster2/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.00002000_00004000.root";
+	TString triggerLevel = "/Data/BaikalData/2019/cluster1/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.root";
+	// TString recoLevel = "/Data/BaikalData/2019/cluster1/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.00002000_00004000.root";
+	TString recoLevel = "/Data/BaikalData/mc/ANIS/results_i0000.reco.cascade.root";
 
 	TCanvas* c_EfficiencyVsE = new TCanvas("c_EfficiencyVsE","EfficiencyVsE",800,600);
 	TRatioPlot* rp_efficiencyVsE = GetRatioPlot(triggerLevel,recoLevel,"h_logEnergyMC");
 	rp_efficiencyVsE->Draw();
 
+	TCanvas* c_EfficiencyVsENW = new TCanvas("c_EfficiencyVsENW","EfficiencyVsENW",800,600);
+	TRatioPlot* rp_efficiencyVsENW = GetRatioPlot(triggerLevel,recoLevel,"h_logEnergyMCNW");
+	rp_efficiencyVsENW->Draw();
+
 	TCanvas* c_EfficiencyVsTheta = new TCanvas("c_EfficiencyVsTheta","EfficiencyVsTheta",800,600);
 	TRatioPlot* rp_efficiencyVsTheta = GetRatioPlot(triggerLevel,recoLevel,"h_cosThetaMC");
 	rp_efficiencyVsTheta->Draw();
+
+	TCanvas* c_EfficiencyVsThetaNW = new TCanvas("c_EfficiencyVsThetaNW","EfficiencyVsThetaNW",800,600);
+	TRatioPlot* rp_efficiencyVsThetaNW = GetRatioPlot(triggerLevel,recoLevel,"h_cosThetaMCNW");
+	rp_efficiencyVsThetaNW->Draw();
+
+	TCanvas* c_EfficiencyVsDistCS = new TCanvas("c_EfficiencyVsDistCS","EfficiencyVsDistCS",800,600);
+	TRatioPlot* rp_efficiencyVsDistCS = GetRatioPlot(triggerLevel,recoLevel,"h_distanceCSMC");
+	rp_efficiencyVsDistCS->Draw();
+
+	TCanvas* c_EfficiencyVsDistCSNW = new TCanvas("c_EfficiencyVsDistCSNW","EfficiencyVsDistCSNW",800,600);
+	TRatioPlot* rp_efficiencyVsDistCSNW = GetRatioPlot(triggerLevel,recoLevel,"h_distanceCSMCNW");
+	rp_efficiencyVsDistCSNW->Draw();
 
 
 	// hs_ALow->Draw("plc nostack HIST");
