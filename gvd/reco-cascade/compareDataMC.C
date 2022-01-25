@@ -50,7 +50,7 @@ TRatioPlot* GetRatioPlot(TString mc, TString data, TString histoName, Double_t m
 	return rp;
 }
 
-THStack* GetHistStack(TString mcBkg, TString data, TString mcSig, TString histoName, Double_t mcBkgExpTime = 1, Double_t dataExpTime = 1, Double_t mcSigExpTime = 1)
+THStack* GetHistStack(TString mcBkg, TString data, TString mcSig, TString mcSig2, TString mcAstro, TString histoName, Double_t mcBkgExpTime = 1, Double_t dataExpTime = 1, Double_t mcSigExpTime = 1, Double_t mcSig2ExpTime = 1, Double_t mcAstroExpTime = 1)
 {
 	TH1D* h_mcSigHist = GetHists(mcSig,histoName);
 	if (mcSigExpTime != -1 && dataExpTime != -1 )
@@ -59,6 +59,14 @@ THStack* GetHistStack(TString mcBkg, TString data, TString mcSig, TString histoN
 		h_mcSigHist->Scale(1/h_mcSigHist->Integral());
 	h_mcSigHist->SetLineColor(kBlue);
 	h_mcSigHist->SetMarkerColor(kBlue);
+
+	TH1D* h_mcSig2Hist = GetHists(mcSig2,histoName);
+	if (mcSig2ExpTime != -1 && dataExpTime != -1 )
+		h_mcSig2Hist->Scale(1/(mcSig2ExpTime/365));
+	else
+		h_mcSig2Hist->Scale(1/h_mcSig2Hist->Integral());
+	h_mcSig2Hist->SetLineColor(kGreen);
+	h_mcSig2Hist->SetMarkerColor(kGreen);
 
 	TH1D* h_mcBkgHist = GetHists(mcBkg,histoName);
 	if (mcBkgExpTime != -1 && dataExpTime != -1 )
@@ -75,12 +83,30 @@ THStack* GetHistStack(TString mcBkg, TString data, TString mcSig, TString histoN
 		h_dataHist->Scale(1/h_dataHist->Integral());
 	h_dataHist->SetLineColor(kBlack);
 	h_dataHist->SetMarkerColor(kBlack);
-	// h_dataHist->Scale(1/dataExpTime);
+
+	TH1D* h_mcAstro = GetHists(mcAstro,histoName);
+	if (mcSigExpTime != -1 && dataExpTime != -1 )
+		h_mcAstro->Scale(1/(mcAstroExpTime/365));
+	else
+		h_mcAstro->Scale(1/h_mcAstro->Integral());
+	h_mcAstro->SetLineColor(kViolet);
+	h_mcAstro->SetMarkerColor(kViolet);
+
+
 	// cout << "Data: " << h_dataHist->Integral() << " MC: " << h_mcHist->Integral() << endl;
-	auto stack = new THStack(histoName,h_dataHist->GetTitle());
+	TString title = ";";
+	title +=h_mcSigHist->GetXaxis()->GetTitle();
+	title += ";";
+	title += h_mcSigHist->GetYaxis()->GetTitle();
+	if (mcSigExpTime == -1 || dataExpTime == -1 )
+		title += " (Normalized)";
+
+	auto stack = new THStack(histoName,title);
 	stack->Add(h_dataHist);
 	stack->Add(h_mcSigHist);
+	stack->Add(h_mcSig2Hist);
 	stack->Add(h_mcBkgHist);
+	stack->Add(h_mcAstro);
 	return stack;
 }
 
@@ -114,7 +140,7 @@ void DrawNormRatios(TString mcBkg,TString data,vector<TString> histNames)
 	}
 }
 
-void DrawStacks(TString mcBkg,TString data,TString mcSig,Double_t mcBckExpTime,Double_t dataExpTime,Double_t mcSigExpTime,vector<TString> histNames)
+void DrawStacks(TString mcBkg,TString data,TString mcSig, TString mcSig2, TString mcAstro, Double_t mcBckExpTime,Double_t dataExpTime,Double_t mcSigExpTime, Double_t mcSig2ExpTime, Double_t mcAstroExpTime, vector<TString> histNames)
 {
 	for (unsigned int i = 0; i < histNames.size(); ++i)
 	{
@@ -125,12 +151,12 @@ void DrawStacks(TString mcBkg,TString data,TString mcSig,Double_t mcBckExpTime,D
 		canvasTitle.ReplaceAll("h_","");
 		canvasTitle += "all";
 		TCanvas* c_temp = new TCanvas(canvasName,canvasTitle,800,600);
-		THStack* hs_thetaRec = GetHistStack(mcBkg,data,mcSig,histNames[i],mcBckExpTime,dataExpTime,mcSigExpTime);
+		THStack* hs_thetaRec = GetHistStack(mcBkg,data,mcSig,mcSig2,mcAstro,histNames[i],mcBckExpTime,dataExpTime,mcSigExpTime,mcSig2ExpTime,mcAstroExpTime);
 		hs_thetaRec->Draw("nostack");
 	}
 }
 
-void DrawNormStacks(TString mcBkg,TString data,TString mcSig,vector<TString> histNames)
+void DrawNormStacks(TString mcBkg,TString data,TString mcSig,TString mcSig2, TString mcAstro,vector<TString> histNames)
 {
 	for (unsigned int i = 0; i < histNames.size(); ++i)
 	{
@@ -141,7 +167,7 @@ void DrawNormStacks(TString mcBkg,TString data,TString mcSig,vector<TString> his
 		canvasTitle.ReplaceAll("h_","");
 		canvasTitle += "allNorm";
 		TCanvas* c_temp = new TCanvas(canvasName,canvasTitle,800,600);
-		THStack* hs_thetaRec = GetHistStack(mcBkg,data,mcSig,histNames[i],-1,-1,-1);
+		THStack* hs_thetaRec = GetHistStack(mcBkg,data,mcSig,mcSig2,mcAstro,histNames[i],-1,-1,-1,-1,-1);
 		hs_thetaRec->Draw("nostack");
 	}
 }
@@ -150,29 +176,43 @@ int compareDataMC(Int_t cluster, TString histName = "", Bool_t onlyNorm = true, 
 {
 	gStyle->SetPalette(kRainBow);
 
+	vector<TString> filePaths;
+
 	TString mcBkg = "";
 	TString mcSig = "";
+	TString mcSig2 = "";
+	TString mcAstro = "";
 	TString data = "";
 	Double_t mcBckExpTime = 0;
 	Double_t mcSigExpTime = 0;
+	Double_t mcSig2ExpTime = 0;
+	Double_t mcAstroExpTime = 0;
 	Double_t dataExpTime = 0;
 
 	switch (cluster)
 	{
 		case 3:
 			mcBkg = "/Data/BaikalData/mc/simGVD/cluster3/results_muatm_sep20_c3.reco.cascade.root";
-			mcSig = "/Data/BaikalData/mc/ANIS/nueatm/results_nueatm_c5.reco.cascade.root";
+			mcSig = "/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/results_nueatm_c3_ver4_50kNoise.reco.cascade.root";
+			mcSig2 = "/Data/BaikalData/mc/ANIS/numuatm_ver4_50kNoise/results_numuatm_c3_ver4_50kNoise.reco.cascade.root";
+			mcAstro = "/Data/BaikalData/mc/ANIS/nueastro_ver4_50kNoise/results_nueastro_c3_ver4_50kNoise.reco.cascade.root";
 			data = "/Data/BaikalData/reco-cascade/2019/cluster3/reco.cascade.results.root";
-			mcBckExpTime = 130.3993;
-			mcSigExpTime = 109.5;
-			dataExpTime = 62.8844;
+			mcBckExpTime = 133.0845/1.65;
+			// mcBckExpTime = 133.0845;
+			// mcSigExpTime = 147.72;
+			mcSigExpTime = 147.72;
+			// mcSig2ExpTime = 130.442;
+			mcSig2ExpTime = 365;
+			// dataExpTime = 316.963;
+			mcAstroExpTime = 96.88;
+			dataExpTime = 62.88;
 			break;
 		case 4:
 			mcBkg = "/Data/BaikalData/mc/simGVD/cluster4/results_muatm_sep20_c4.reco.cascade.root";
 			mcSig = "/Data/BaikalData/mc/ANIS/nueatm/results_nueatm_c5.reco.cascade.root";
 			data = "/Data/BaikalData/reco-cascade/2019/cluster4/reco.cascade.results.root";
 			mcBckExpTime = 130.3993;
-			mcSigExpTime = 109.5;
+			mcSigExpTime = 147.72;
 			dataExpTime = 77.5543;
 			break;
 		case 5:
@@ -196,13 +236,13 @@ int compareDataMC(Int_t cluster, TString histName = "", Bool_t onlyNorm = true, 
 		if (onlyRatio)
 			DrawRatios(mcBkg,data,mcBckExpTime,dataExpTime,histNames);
 		else
-			DrawStacks(mcBkg,data,mcSig,mcBckExpTime,dataExpTime,mcSigExpTime,histNames);
+			DrawStacks(mcBkg,data,mcSig,mcSig2,mcAstro,mcBckExpTime,dataExpTime,mcSigExpTime,mcSig2ExpTime,mcAstroExpTime,histNames);
 	}else
 	{
 		if (onlyRatio)
 			DrawNormRatios(mcBkg,data,histNames);
 		else
-			DrawNormStacks(mcBkg,data,mcSig,histNames);
+			DrawNormStacks(mcBkg,data,mcSig,mcSig2,mcAstro,histNames);
 	}
 
 	return 0;

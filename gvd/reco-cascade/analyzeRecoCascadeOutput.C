@@ -32,8 +32,8 @@ double SetTChain(TChain &recCasc, int year, int cluster)
 	{
 		for (int i = startID; i < endID; ++i)
 		{
+			// TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d_full/*.reco.cascade.root",j,i);
 			TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d/*.reco.cascade.root",j,i);
-			// TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d/*.reco.cascade.root",j,i);
 			// TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d_beg/*.reco.cascade.root",j,i);
 			recCasc.Add(filesDir);
 		}
@@ -47,7 +47,7 @@ double SetTChain(TChain &recCasc, TString fileName)
 	return recCasc.GetEntries();
 }
 
-double CalculateExpositionTime(TChain &recCasc)
+double CalculateExpositionTime(TChain &recCasc, vector<double> &expTimePerRun)
 {
 	double expositionTimeInHours = 0;
 	TObjArray* fileArray = recCasc.GetListOfFiles();
@@ -69,6 +69,7 @@ double CalculateExpositionTime(TChain &recCasc)
 		// cout << (runInfo->GetStopTime() - runInfo->GetStartTime())/3600.0<< endl;
 		expositionTimeInHours += (runInfo->GetStopTime() - runInfo->GetStartTime())/3600.0;
 	//    TTree *tree = f.Get<TTree>(chainElement->GetName());
+		expTimePerRun[runInfo->GetRunNum()] = (runInfo->GetStopTime() - runInfo->GetStartTime())/3600.0;
 	}
 	cout << "Exposition time: " << expositionTimeInHours << "\t" << expositionTimeInHours/24.0 <<endl;
 	cout << "Number of runs: " << fileArray->GetEntries() <<endl;
@@ -115,6 +116,12 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 
 	TH1D* h_tRes = new TH1D("h_tRes","#delta T of reco hits; #delta T [ns]; NoE [#]",100,-50,50);
 	histograms.insert(std::make_pair("h_tRes",h_tRes));
+
+	TH1D* h_expQ = new TH1D("h_expQ","Expected charge of reco hits; Q_{expected} [p.e.]; NoE [#]",500,0,1000);
+	histograms.insert(std::make_pair("h_expQ",h_expQ));
+
+	TH1D* h_measQ = new TH1D("h_measQ","Measured charge of reco hits; Q_{measured} [p.e.]; NoE [#]",500,0,1000);
+	histograms.insert(std::make_pair("h_measQ",h_measQ));
 
 	TH1D* h_logPHit = new TH1D("h_logPHit","Log_{10}(P_{hit}); Log_{10}(P_{hit}) [1]; NoE [#]",100,-10,0);
 	histograms.insert(std::make_pair("h_logPHit",h_logPHit));
@@ -194,6 +201,27 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 	TH1D* h_qRecoHits = new TH1D("h_qRecoHits","Charge of reco hits; Q_{recoHits} [p.e.]; NoE [#]",100,0,10000);
 	histograms.insert(std::make_pair("h_qRecoHits",h_qRecoHits));
 
+	TH2D* h_qExpVsQMeas = new TH2D("h_qExpVsQMeas","Q_{measured}/Q_{expected}; Q_{expected} [p.e.]; Q_{measured}/Q_{expected} [1]; NoE [#]",100,0,10000,200,0,2);
+	histograms2D.insert(std::make_pair("h_qExpVsQMeas",h_qExpVsQMeas));
+
+	TH2D* h_qExpVsQMeas2 = new TH2D("h_qExpVsQMeas2","Q_{measured} vs Q_{expected}; Q_{expected} [p.e.]; Q_{measured} [p.e.]; NoE [#]",100,0,1000,100,0,1000);
+	histograms2D.insert(std::make_pair("h_qExpVsQMeas2",h_qExpVsQMeas2));
+
+	TH1D* h_cascadeRatePerDay = new TH1D("h_cascadeRatePerDay","Cascade rate per day; Day [Days]; NoE [#]",73,0,365);
+	histograms.insert(std::make_pair("h_cascadeRatePerDay",h_cascadeRatePerDay));
+
+	TH1D* h_cascadeRatePerRun = new TH1D("h_cascadeRatePerRun","Cascade rate per run; RunID [1]; NoE [#]",800,0,800);
+	histograms.insert(std::make_pair("h_cascadeRatePerRun",h_cascadeRatePerRun));
+
+	TH1D* h_expTimePerRun = new TH1D("h_expTimePerRun","Exposition time per run; RunID [1]; Exposition time [days]",800,0,800);
+	histograms.insert(std::make_pair("h_expTimePerRun",h_expTimePerRun));
+
+	TH2D* h_nOMsPerRun = new TH2D("h_nOMsPerRun","Number of working OMs per run; RunID [1]; Number of OMs [#]; NoE [#]",800,0,800,300,0,300);
+	histograms2D.insert(std::make_pair("h_nOMsPerRun",h_nOMsPerRun));
+
+	TH2D* h_runIDVsDayInYear = new TH2D("h_runIDVsDayInYear","RunID vs. Day in year; RunID [1]; Day in year; NoE [#]",800,0,800,365,0,365);
+	histograms2D.insert(std::make_pair("h_runIDVsDayInYear",h_runIDVsDayInYear));
+
 	if (isMCFile)
 	{
 		TH1D* h_energyMC = new TH1D("h_energyMC","MC energy; E_{MC} [TeV]; NoE [#]",2000,0,20000);
@@ -232,19 +260,19 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 		TH1D* h_mismatchAngle = new TH1D("h_mismatchAngle","Mismatch angle;Mismatch angle [deg.];NoE [#]",180,0,180);
 		histograms.insert(std::make_pair("h_mismatchAngle",h_mismatchAngle));
 
-		TH1D* h_mismatchPosition = new TH1D("h_mismatchPosition","Mismatch position;Mismatch position [m];NoE [#]",200,0,200);
+		TH1D* h_mismatchPosition = new TH1D("h_mismatchPosition","Mismatch position;Mismatch position [m];NoE [#]",400,0,200);
 		histograms.insert(std::make_pair("h_mismatchPosition",h_mismatchPosition));
 
-		TH1D* h_causHitEfficiency = new TH1D("h_causHitEfficiency","Causality Hit efficiency; Eff [%]; NoE [%]",110,0,110);
+		TH1D* h_causHitEfficiency = new TH1D("h_causHitEfficiency","Causality Hit efficiency; Hit selection efficiency [%]; NoE*eventWeight [1]",110,0,110);
 		histograms.insert(std::make_pair("h_causHitEfficiency",h_causHitEfficiency));
 
-		TH1D* h_causHitPurity = new TH1D("h_causHitPurity","Causality Hit purity; Purity [%]; NoE [%]",110,0,110);
+		TH1D* h_causHitPurity = new TH1D("h_causHitPurity","Causality Hit purity; Hit selection purity [%]; NoE*eventWeight [1]",110,0,110);
 		histograms.insert(std::make_pair("h_causHitPurity",h_causHitPurity));
 
-		TH1D* h_hitEfficiency = new TH1D("h_hitEfficiency","Hit efficiency; Eff [%]; NoE [%]",110,0,110);
+		TH1D* h_hitEfficiency = new TH1D("h_hitEfficiency","Hit efficiency; Hit selection efficiency [%]; NoE*eventWeight [1]",110,0,110);
 		histograms.insert(std::make_pair("h_hitEfficiency",h_hitEfficiency));
 
-		TH1D* h_hitPurity = new TH1D("h_hitPurity","Hit purity; Purity [%]; NoE [%]",110,0,110);
+		TH1D* h_hitPurity = new TH1D("h_hitPurity","Hit purity; Hit selection purity [%]; NoE*eventWeight [1]",110,0,110);
 		histograms.insert(std::make_pair("h_hitPurity",h_hitPurity));
 
 		TH1D* h_noiseQ = new TH1D("h_noiseQ","Charge of noise hits; Q [p.e.]; NoE [%]",100,0,100);
@@ -261,6 +289,27 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 
 		TH2D* h_likeHitOnlyVsE = new TH2D("h_likeHitOnlyVsE","LikelihoodHitOnly vs. energy; log_{10}(E) [TeV]; Likelihood_{HitOnly} [1]; NoE [#]",60,0,6,200,0,20);
 		histograms2D.insert(std::make_pair("h_likeHitOnlyVsE",h_likeHitOnlyVsE));
+
+		TH2D* h_mismatchPosVsE = new TH2D("h_mismatchPosVsE","Mismatch position vs. energy; log_{10}(E) [TeV]; | r_{rec} - r__{MC} | [m]; NoE [#]",60,0,6,200,0,100);
+		histograms2D.insert(std::make_pair("h_mismatchPosVsE",h_mismatchPosVsE));
+
+		TH2D* h_mismatchPosLongVsE = new TH2D("h_mismatchPosLongVsE","Longitudinal mismatch position vs. energy; log_{10}(E) [TeV]; Median #Delta L [m]; NoE [#]",60,0,6,200,0,100);
+		histograms2D.insert(std::make_pair("h_mismatchPosLongVsE",h_mismatchPosLongVsE));
+
+		TH2D* h_mismatchPosTranVsE = new TH2D("h_mismatchPosTranVsE","Transversal mismatch position vs. energy; log_{10}(E) [TeV]; Median #Delta T [m]; NoE [#]",60,0,6,200,0,100);
+		histograms2D.insert(std::make_pair("h_mismatchPosTranVsE",h_mismatchPosTranVsE));
+
+		TH2D* h_mismatchEnergyVsE = new TH2D("h_mismatchEnergyVsE","Mismatch energy vs. energy; log_{10}(E) [TeV]; E_{rec}/E_{MC} [1]; NoE [#]",60,0,6,100,0,10);
+		histograms2D.insert(std::make_pair("h_mismatchEnergyVsE",h_mismatchEnergyVsE));
+
+		TH2D* h_thetaVsThetaMC = new TH2D("h_thetaVsThetaMC","#theta_{MC} vs. #theta_{rec}; #theta_{MC} [deg.]; #theta_{rec} [deg.]; NoE [#]",180,0,180,180,0,180);
+		histograms2D.insert(std::make_pair("h_thetaVsThetaMC",h_thetaVsThetaMC));
+
+		TH2D* h_phiVsPhiMC = new TH2D("h_phiVsPhiMC","#phi_{MC} vs. #phi_{rec}; #phi_{MC} [deg.]; #phi_{rec} [deg.]; NoE [#]",180,0,360,180,0,360);
+		histograms2D.insert(std::make_pair("h_phiVsPhiMC",h_phiVsPhiMC));
+
+		TH2D* h_nCloseHitsVsCosThetaMC = new TH2D("h_nCloseHitsVsCosThetaMC","Number of close hits Vs. Cos(#theta_{MC}); cos(#theta_{MC}) [1] ; N_{closeHits} [#]; NoE [#]",20,-1,1,20,0,20);
+		histograms2D.insert(std::make_pair("h_nCloseHitsVsCosThetaMC",h_nCloseHitsVsCosThetaMC));
 	}
 
 	return histograms.size();
@@ -292,6 +341,12 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 	TCanvas* c_tRes = new TCanvas("c_tRes","TResiduals",800,600);
 	histograms["h_tRes"]->Draw("HIST");
 
+	TCanvas* c_expQ = new TCanvas("c_expQ","ExpectedCharge",800,600);
+	histograms["h_expQ"]->Draw("HIST");
+	histograms["h_expQ"]->SetLineColor(kRed);
+	histograms["h_measQ"]->Draw("HIST same");
+	histograms["h_measQ"]->SetLineColor(kBlack);
+
 	TCanvas* c_chi2 = new TCanvas("c_chi2","Chi2",800,600);
 	histograms["h_chi2"]->Draw("HIST");
 
@@ -304,6 +359,29 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 	TCanvas* c_distanceCS = new TCanvas("c_distanceCS","DistanceCS",800,600);
 	histograms["h_distanceCS"]->Draw("HIST");
 
+	TCanvas* c_qExpVsqMeas = new TCanvas("c_qExpVsqMeas","QExpVsQMeas",800,600);
+	histograms2D["h_qExpVsQMeas"]->Draw("colz");
+	histograms2D["h_qExpVsQMeas"]->QuantilesX()->Draw("SAME");
+
+	TCanvas* c_qExpVsqMeas2 = new TCanvas("c_qExpVsqMeas2","QExpVsQMeas2",800,600);
+	histograms2D["h_qExpVsQMeas2"]->Draw("colz");
+	histograms2D["h_qExpVsQMeas2"]->QuantilesX()->Draw("SAME");
+
+	TCanvas* c_cascadeRatePerDay = new TCanvas("c_cascadeRatePerDay","CascadeRatePerDay",800,600);
+	histograms["h_cascadeRatePerDay"]->Draw("HIST");
+
+	TCanvas* c_cascadeRatePerRun = new TCanvas("c_cascadeRatePerRun","CascadeRatePerRun",800,600);
+	histograms["h_cascadeRatePerRun"]->Draw("HIST");
+
+	TCanvas* c_expTimePerRun = new TCanvas("c_expTimePerRun","ExpositionTimePerRun",800,600);
+	histograms["h_expTimePerRun"]->Draw("HIST");
+
+	TCanvas* c_nOMsPerRun = new TCanvas("c_nOMsPerRun","NumberOMsPerRun",800,600);
+	histograms2D["h_nOMsPerRun"]->Draw("colz");
+	histograms2D["h_nOMsPerRun"]->QuantilesX()->Draw("SAME");
+
+	TCanvas* c_runIDVsDayInYear = new TCanvas("c_runIDVsDayInYear","RunIDVsDayInYear",800,600);
+	histograms2D["h_runIDVsDayInYear"]->Draw("colz");
 
 	if (isMCFile)
 	{
@@ -346,7 +424,12 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 		TCanvas* c_mismatchAngleVsE = new TCanvas("c_mismatchAngleVsE","MismatchAngleVsE",800,600);
 		histograms2D["h_mismatchAngleVsE"]->Draw("COLZ");
 		// histograms2D["h_mismatchAngleVsE"]->ProfileX()->Draw("SAME");
-		histograms2D["h_mismatchAngleVsE"]->QuantilesX()->Draw("SAME");
+		TH1D* h_mismatchAngleVsEQuant = histograms2D["h_mismatchAngleVsE"]->QuantilesX();
+		h_mismatchAngleVsEQuant->SetLineColor(kRed);
+		h_mismatchAngleVsEQuant->SetMarkerColor(kRed);
+		h_mismatchAngleVsEQuant->Draw("SAME");
+		histograms2D["h_mismatchAngleVsE"]->QuantilesX(0.1)->Draw("SAME");
+		histograms2D["h_mismatchAngleVsE"]->QuantilesX(0.9)->Draw("SAME");
 
 		TCanvas* c_likeVsE = new TCanvas("c_likeVsE","LikelihoodVsE",800,600);
 		histograms2D["h_likeVsE"]->Draw("COLZ");
@@ -355,6 +438,52 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 		TCanvas* c_likeHitOnlyVsE = new TCanvas("c_likeHitOnlyVsE","LikelihoodHitOnlyVsE",800,600);
 		histograms2D["h_likeHitOnlyVsE"]->Draw("COLZ");
 		histograms2D["h_likeHitOnlyVsE"]->QuantilesX()->Draw("SAME");
+
+		TCanvas* c_mismatchPosVsE = new TCanvas("c_mismatchPosVsE","MismatchPositionVsE",800,600);
+		histograms2D["h_mismatchPosVsE"]->Draw("COLZ");
+		TH1D* h_mismatchPosVsEQuant = histograms2D["h_mismatchPosVsE"]->QuantilesX();
+		h_mismatchPosVsEQuant->SetLineColor(kRed);
+		h_mismatchPosVsEQuant->SetMarkerColor(kRed);
+		h_mismatchPosVsEQuant->Draw("SAME");
+		histograms2D["h_mismatchPosVsE"]->QuantilesX(0.1)->Draw("SAME");
+		histograms2D["h_mismatchPosVsE"]->QuantilesX(0.9)->Draw("SAME");
+
+		TCanvas* c_mismatchPosLongVsE = new TCanvas("c_mismatchPosLongVsE","LongitudinalMismatchPositionVsE",800,600);
+		histograms2D["h_mismatchPosLongVsE"]->Draw("COLZ");
+		TH1D* h_mismatchPosLongVsEQuant = histograms2D["h_mismatchPosLongVsE"]->QuantilesX();
+		h_mismatchPosLongVsEQuant->SetLineColor(kRed);
+		h_mismatchPosLongVsEQuant->SetMarkerColor(kRed);
+		h_mismatchPosLongVsEQuant->Draw("SAME");
+		histograms2D["h_mismatchPosLongVsE"]->QuantilesX(0.1)->Draw("SAME");
+		histograms2D["h_mismatchPosLongVsE"]->QuantilesX(0.9)->Draw("SAME");
+
+		TCanvas* c_mismatchPosTranVsE = new TCanvas("c_mismatchPosTranVsE","TransversalMismatchPositionVsE",800,600);
+		histograms2D["h_mismatchPosTranVsE"]->Draw("COLZ");
+		TH1D* h_mismatchPosTranVsEQuant = histograms2D["h_mismatchPosTranVsE"]->QuantilesX();
+		h_mismatchPosTranVsEQuant->SetLineColor(kRed);
+		h_mismatchPosTranVsEQuant->SetMarkerColor(kRed);
+		h_mismatchPosTranVsEQuant->Draw("SAME");
+		histograms2D["h_mismatchPosTranVsE"]->QuantilesX(0.1)->Draw("SAME");
+		histograms2D["h_mismatchPosTranVsE"]->QuantilesX(0.9)->Draw("SAME");
+
+		TCanvas* c_mismatchEnergyVsE = new TCanvas("c_mismatchEnergyVsE","MismatchEnergyVsE",800,600);
+		histograms2D["h_mismatchEnergyVsE"]->Draw("COLZ");
+		TH1D* h_mismatchEnergyVsEQuant = histograms2D["h_mismatchEnergyVsE"]->QuantilesX();
+		h_mismatchEnergyVsEQuant->SetLineColor(kRed);
+		h_mismatchEnergyVsEQuant->SetMarkerColor(kRed);
+		h_mismatchEnergyVsEQuant->Draw("SAME");
+		histograms2D["h_mismatchEnergyVsE"]->QuantilesX(0.1)->Draw("SAME");
+		histograms2D["h_mismatchEnergyVsE"]->QuantilesX(0.9)->Draw("SAME");
+
+		TCanvas* c_thetaVsThetaMC = new TCanvas("c_thetaVsThetaMC","ThetaVsThetaMC",800,600);
+		histograms2D["h_thetaVsThetaMC"]->Draw("COLZ");
+
+		TCanvas* c_phiVsPhitMC = new TCanvas("c_phiVsPhitMC","PhiVsPhiMC",800,600);
+		histograms2D["h_phiVsPhiMC"]->Draw("COLZ");
+
+		TCanvas* c_nCloseHitsVsCosThetaMC = new TCanvas("c_nCloseHitsVsCosThetaMC","NCloseHitsVsCosThetaMC",800,600);
+		histograms2D["h_nCloseHitsVsCosThetaMC"]->Draw("COLZ");
+		histograms2D["h_nCloseHitsVsCosThetaMC"]->QuantilesX()->Draw("SAME");
 	}
 
 	return 0;
@@ -451,8 +580,9 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 	std::map<std::string, TH2D*> v_histograms2D;
 	// vector<TH1D*> v_histograms;
 	SetHistograms(v_histograms,v_histograms2D,isMCFile);
+	vector<double> expTimePerRun(1000,0.0);
 	if (calcExpTime)
-		CalculateExpositionTime(reconstructedCascades);
+		CalculateExpositionTime(reconstructedCascades,expTimePerRun);
 	Float_t eventWeight = 1.0;
 
 	for (int i = 0; i < reconstructedCascades.GetEntries(); ++i)
@@ -460,6 +590,8 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		reconstructedCascades.GetEntry(i);
 		if (isMCFile)
 			eventWeight = myCascade->GetEventWeight();
+		if (isMCFile && myMCCascade->GetShowerEnergy() > 10000)
+			continue;
 		// if (myCascade->GetFitPos().Z() > 610)
 		if (myCascade->GetFitPos().Z() > (isMCFile?220.3:580))
 			continue;
@@ -467,17 +599,17 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 			continue;
 		// if (myCascade->GetEnergyRec() < 10)
 			// continue;
-		if (myCascade->GetDistanceCS() > 100)
-			continue;
+		// if (myCascade->GetDistanceCS() > 100)
+			// continue;
 		// if (myCascade->GetDistanceCS() > 65)
 		// if (myCascade->GetDistanceCS() > 65)
 			// continue;
-		if (myCascade->GetNHitsTFil() < 20)
-			continue;
+		// if (myCascade->GetNHitsTFil() < 20)
+			// continue;
 
 		// if (myCascade->GetNHitsTrackSeg() > 1)
 			// continue;
-		// if (myCascade->GetEnergyRec() < 500)
+		// if (myCascade->GetEnergyRec() < 10)
 			// continue;
 		// if (myCascade->GetNHitsTFil() < 50)
 		// 	continue;
@@ -521,11 +653,20 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		v_histograms["h_qEarly"]->Fill(myCascade->GetQEarly(),eventWeight);
 		v_histograms["h_qRecoHits"]->Fill(myCascade->GetQRecoHits(),eventWeight);
 
+		v_histograms["h_cascadeRatePerDay"]->Fill(myHeader->GetTimeCC().GetDayOfYear(),eventWeight);
+		v_histograms["h_cascadeRatePerRun"]->Fill(myHeader->GetRun(),eventWeight);
+		v_histograms2D["h_nOMsPerRun"]->Fill(myHeader->GetRun(),myCascade->GetNHitsLike(),eventWeight);
+		v_histograms2D["h_runIDVsDayInYear"]->Fill(myHeader->GetRun(),myHeader->GetTimeCC().GetDayOfYear(),eventWeight);
+
 		for (int i = 0; i < myCascade->GetNImpulseIDs(); ++i)
 		{
 			v_histograms["h_OMID"]->Fill(myEvent->HitChannel(myCascade->GetImpulseID(i)),eventWeight);
 			v_histograms["h_tRes"]->Fill(myCascade->GetTResPerHit(i),eventWeight);
 			v_histograms["h_logPHit"]->Fill(myCascade->GetLikePerHit(i),eventWeight);
+			// v_histograms["h_expQ"]->Fill(myCascade->GetExpQPerHit(i),eventWeight);
+			// v_histograms["h_measQ"]->Fill(myEvent->Q(myCascade->GetImpulseID(i)),eventWeight);
+			// v_histograms2D["h_qExpVsQMeas"]->Fill(myCascade->GetExpQPerHit(i),myEvent->Q(myCascade->GetImpulseID(i))/myCascade->GetExpQPerHit(i),eventWeight);
+			// v_histograms2D["h_qExpVsQMeas2"]->Fill(myCascade->GetExpQPerHit(i),myEvent->Q(myCascade->GetImpulseID(i)),eventWeight);
 		}
 		if (isMCCascadeFile)
 		{
@@ -549,6 +690,10 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 			v_histograms2D["h_mismatchAngleVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),trueDir.Angle(recDir)*TMath::RadToDeg(),eventWeight);
 			v_histograms2D["h_likeVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),myCascade->GetLikelihood(),eventWeight);
 			v_histograms2D["h_likeHitOnlyVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),myCascade->GetLikelihoodHitOnly(),eventWeight);
+			v_histograms2D["h_mismatchPosVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),(myCascade->GetFitPos()-myCascade->GetPosMC()).Mag(),eventWeight);
+			v_histograms2D["h_mismatchEnergyVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),myCascade->GetEnergyRec()/myCascade->GetEnergyMC(),eventWeight);
+			v_histograms2D["h_mismatchPosLongVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),(myCascade->GetFitPos()-myCascade->GetPosMC())*trueDir,eventWeight);
+			v_histograms2D["h_mismatchPosTranVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),(myCascade->GetFitPos()-myCascade->GetPosMC()).Perp(trueDir),eventWeight);
 			Int_t nSignalHitsTrue = 0;
 			for (int i = 0; i < myMCCascade->GetNHits(); ++i)
 			{
@@ -574,11 +719,27 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 			v_histograms["h_causHitEfficiency"]->Fill((double)nSignalCausHitsReco/nSignalHitsTrue*100,eventWeight);
 			v_histograms["h_causHitPurity"]->Fill((double)nSignalCausHitsReco/myCascade->GetNCausImpulseIDs()*100,eventWeight);
 			v_histograms2D["h_hitPurityVsE"]->Fill(TMath::Log10(myMCCascade->GetShowerEnergy()),(double)nSignalHitsReco/myCascade->GetNImpulseIDs()*100,eventWeight);
+			v_histograms2D["h_thetaVsThetaMC"]->Fill(myCascade->GetThetaMC(),myCascade->GetThetaRec(),eventWeight);
+			v_histograms2D["h_phiVsPhiMC"]->Fill(myCascade->GetPhiMC(),myCascade->GetPhiRec(),eventWeight);
+			v_histograms2D["h_nCloseHitsVsCosThetaMC"]->Fill(TMath::Cos(myCascade->GetThetaMC()*TMath::DegToRad()),myCascade->GetNCloseHits(),eventWeight);
+
 		}
 
 		PrintHECascades(myCascade,myHeader,100.0);
 		PrintUpGoingCascades(myCascade,myHeader,80.0);
 	}
+
+	if (calcExpTime)
+		for (int i = 0; i < v_histograms["h_cascadeRatePerRun"]->GetNbinsX(); ++i)
+		{
+			// cout << i << "\t" << v_histograms["h_cascadeRatePerRun"]->GetBinContent(i) << endl;
+			if (v_histograms["h_cascadeRatePerRun"]->GetBinContent(i) != 0)
+			{
+				// cout << i << "\t" << expTimePerRun[i-1] << endl;
+				v_histograms["h_cascadeRatePerRun"]->SetBinContent(i,v_histograms["h_cascadeRatePerRun"]->GetBinContent(i)/(expTimePerRun[i-1]/24.0));
+				v_histograms["h_expTimePerRun"]->SetBinContent(i,expTimePerRun[i-1]/24.0);
+			}
+		}
 
 	DrawHistograms(v_histograms,v_histograms2D,isMCFile);
 	SaveHistograms(v_histograms,fileName,year,cluster);

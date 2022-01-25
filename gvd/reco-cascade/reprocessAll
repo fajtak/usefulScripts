@@ -1,5 +1,5 @@
 #!/bin/bash
 
-root -l -q "analyzeRecoCascadeOutput.C+(19,3,true,\"/Data/BaikalData/mc/simGVD/cluster3/muatm_sep20_c3.reco.cascade.root\")"
+root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/simGVD/cluster3/muatm_sep20_c3.reco.cascade.root\")"
 root -l -q "analyzeRecoCascadeOutput.C+(19,3)"
-root -l -q "analyzeRecoCascadeOutput.C+(19,3,true,\"/Data/BaikalData/mc/ANIS/nueatm/nueatm_c5.reco.cascade.root\")"
+root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/ANIS/nueatm_ver3_50kNoise/nueatm_cl3_ver3_50kNoise.reco.cascade.root\")"

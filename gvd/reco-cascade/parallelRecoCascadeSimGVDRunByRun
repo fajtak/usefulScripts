@@ -1,0 +1,14 @@
+#!/bin/bash
+# process all joint.event.root files for given year and cluster with reco-cascade program
+# arguments: year(16,17,18,19), cluster(from zero/0), optional parameter nCores used for processing
+
+[ -z $1 ] && echo "Cluster info missing" && exit
+# [ -z $2 ] && echo "Cluster info missing" && exit
+
+# parallel "(time reco-cascade --season 20$1 -c $2 -r {1} --config /home/fajtak/bars/build/resources/reco-cascade_promptReco.rc -t dev-1.0 -o /mnt/cephfs/users/fajtak/cluster$2/) 2>&1 | tee /mnt/cephfs/users/fajtak/cluster$2/logs/programOutput_$1_$2_{1}.log" ::: {1..999}
+
+# parallel --link "(time reco-cascade -s 2019 -c 1 -r 0 -a -x ../resources/reco-cascade_test.rc -i ~/inputFiles/elecDetResp.dat -A -1 {1} -2 {2} -o /mnt/cephfs/users/fajtak/ANIS/) 2>&1 | tee /mnt/cephfs/users/fajtak/ANIS/logs/programOutput_{1}.log" ::: 0 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500 6000 6500 7000 7500 8000 8500 9000 9500 ::: 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500 6000 6500 7000 7500 8000 8500 9000 9500 10000
+parallel "(time reco-cascade -s 2019 -c $1 -r {1} -m -x /home/fajtak/bars/resources/reco-cascade_promptReco.rc -i /eos/baikalgvd/mc/2019/muatm/v1.1/wout/cluster$1/cors_{1}.wout -o /mnt/cephfs/users/fajtak/simGVD/run-by-run/cluster$1/) 2>&1 | tee /mnt/cephfs/users/fajtak/simGVD/run-by-run/cluster$1/logs/programOutput_c$1_{1}.log" ::: {5000..10501}
+
+
+# reco-cascade -s 2019 -c 5 -r 4 -m -x ../resources/reco-cascade_test.rc -i /Data/BaikalData/mc/muatm_sep20_wout/cluster5/cors_1004.wout -o ./

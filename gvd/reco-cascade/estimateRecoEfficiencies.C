@@ -35,18 +35,48 @@ TRatioPlot* GetRatioPlot(TString triggerLevel, TString recoLevel, TString histoN
 	return rp;
 }
 
-int estimateRecoEfficiencies()
+int estimateRecoEfficiencies(int processID = 0)
 {
 	gStyle->SetPalette(kRainBow);
 
+	TString triggerLevel = "";
+	TString recoLevel = "";
+
+	switch (processID)
+	{
+		case 0:
+			triggerLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2/results_i0000.reco.cascade.00000000_01000000.root";
+			recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2/results_nueatm_c3.reco.cascade.root";
+			break;
+		case 1:
+			triggerLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2_50kNoise/results_nueatm_c3_ver2_50kNoise.reco.cascade.root";
+			// recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2_100kNoise/results_nueatm_c3_ver2_100kNoise.reco.cascade.root";
+			recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2_200kNoise/results_nueatm_c3_ver2_200kNoise.reco.cascade.root";
+			break;
+		case 2:
+			triggerLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver3_50kNoise/results_i0000.reco.cascade.00000000_00300000.caus.root";
+			// recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver3_50kNoise/results_i0000.reco.cascade.00000000_00300000.root";
+			recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver3_50kNoise/results_nueatm_cl3_ver3_50kNoise.reco.cascade.root";
+			break;
+		case 3:
+			triggerLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/results_i0000.reco.cascade.00000000_00243000.caus.root";
+			recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/results_i0000.reco.cascade.00000000_00243000.fitPos.root";
+			// recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/results_i0000.reco.cascade.00000000_00243000.closeHits.root";
+			// recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/results_nueatm_c3_ver4_50kNoise.reco.cascade.root";
+			break;
+	}
+
 	// TString triggerLevel = "/Data/BaikalData/2019/cluster2/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.00002000_00004000.root";
-	TString triggerLevel = "/Data/BaikalData/2019/cluster1/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.root";
+	// TString triggerLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2/results_i0000.reco.cascade.00000000_00367500.root";
+	// TString triggerLevel = "/Data/BaikalData/2019/cluster1/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.root";
 	// TString recoLevel = "/Data/BaikalData/2019/cluster1/exp/reco/reco1.0-1162-g2262-v1.1/0000/results_i0000.reco.cascade.00002000_00004000.root";
-	TString recoLevel = "/Data/BaikalData/mc/ANIS/results_i0000.reco.cascade.root";
+	// TString recoLevel = "/Data/BaikalData/mc/ANIS/nueatm_ver2/results_nueatm_c3.reco.cascade.root";
+	// TString recoLevel = "/Data/BaikalData/mc/ANIS/results_i0000.reco.cascade.root";
 
 	TCanvas* c_EfficiencyVsE = new TCanvas("c_EfficiencyVsE","EfficiencyVsE",800,600);
 	TRatioPlot* rp_efficiencyVsE = GetRatioPlot(triggerLevel,recoLevel,"h_logEnergyMC");
 	rp_efficiencyVsE->Draw();
+	c_EfficiencyVsE->BuildLegend();
 
 	TCanvas* c_EfficiencyVsENW = new TCanvas("c_EfficiencyVsENW","EfficiencyVsENW",800,600);
 	TRatioPlot* rp_efficiencyVsENW = GetRatioPlot(triggerLevel,recoLevel,"h_logEnergyMCNW");

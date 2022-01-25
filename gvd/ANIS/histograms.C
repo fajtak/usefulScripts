@@ -15,7 +15,8 @@ using namespace std;
 
 TH1D* h_thetaRec = new TH1D("h_thetaRec","Reconstructed theta; #theta [deg.]; NoE [#]",36,0,180);
 
-TH1D* h_cosThetaRec = new TH1D("h_cosThetaRec","Reconstructed cos(theta); cos(#theta) [1]; NoE [#]",22,-1.1,1.1);
+TH1D* h_EMC = new TH1D("h_EMC","MC energy; E_{MC} [TeV]; NoE*eventWeight [#]",200,0,1000);
+TH1D* h_cosThetaMC = new TH1D("h_cosThetaMC","MC cos(theta); cos(#theta_{MC}) [1]; NoE*eventWeight [#]",22,-1.1,1.1);
 TH1D* h_cosThetaRecNW = new TH1D("h_cosThetaRecNW","Reconstructed cos(theta); cos(#theta) [1]; NoE [#]",22,-1.1,1.1);
 
 void histograms()
@@ -27,7 +28,12 @@ void histograms()
   ifstream readFile;
 
   // readFile.open("muoncascade.dat");
-  readFile.open("/Data/BaikalData/mc/ANIS/elecANISoutput");
+  // readFile.open("/Data/BaikalData/mc/ANIS/elecANISoutput");
+  // readFile.open("/Data/BaikalData/mc/ANIS/nueatm_ver2/ANISoutput");
+  // readFile.open("/Data/BaikalData/mc/ANIS/nueatm_ver3_50kNoise/ANISoutput");
+  // readFile.open("/Data/BaikalData/mc/ANIS/nueastro_ver4/ANISoutput");
+  readFile.open("/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/ANISoutput");
+  // readFile.open("/Data/BaikalData/mc/ANIS/nueastro_ver1/ANISoutput");
   if(!readFile.is_open()){ 
   readFile.close();
   return; 
@@ -39,19 +45,24 @@ void histograms()
     TVector3 dir(p1x,p1y,p1z);
     holder.clear();
     h_thetaRec->Fill(dir.Theta()*TMath::RadToDeg(),weight);
-    h_cosThetaRec->Fill(dir.CosTheta(),weight);
+    h_cosThetaMC->Fill(dir.CosTheta(),weight);
     h_cosThetaRecNW->Fill(dir.CosTheta());
+    h_EMC->Fill(Ein*1E-3,weight);
     // if(nFlag==3){
       // cumWeightsGeV=cumWeightsGeV+weight;
     // }
   }
   readFile.close();
   
-  TCanvas* c_cosThetaRec = new TCanvas("c_cosThetaRec","Theta",800,600);
-  h_cosThetaRec->Draw();
+  TCanvas* c_cosThetaMC = new TCanvas("c_cosThetaMC","CosThetaMC",800,600);
+  h_cosThetaMC->Draw();
 
   TCanvas* c_cosThetaRecNW = new TCanvas("c_cosThetaRecNW","ThetaNW",800,600);
   h_cosThetaRecNW->Draw();
+
+  TCanvas* c_EMC = new TCanvas("c_EMC","EMC",800,600);
+  h_EMC->Draw();
+
 
   // cout<<endl<<" sum of the weights is "<<cumWeightsGeV<<endl;
 
