@@ -29,7 +29,7 @@ TRatioPlot* GetRatioPlot(TString mc, TString data, TString histoName, Double_t m
 {
 	TH1D* h_mcHist = GetHists(mc,histoName);
 	if (mcExpTime != -1 && dataExpTime != -1 )
-		h_mcHist->Scale(1/(mcExpTime/365));
+		h_mcHist->Scale(1/(mcExpTime));
 	else
 		h_mcHist->Scale(1/h_mcHist->Integral());
 	h_mcHist->SetLineColor(kRed);
@@ -37,7 +37,7 @@ TRatioPlot* GetRatioPlot(TString mc, TString data, TString histoName, Double_t m
 	// h_mcHist->Scale(1/(realDataDuration*24*3600));
 	TH1D* h_dataHist = GetHists(data,histoName);
 	if (mcExpTime != -1 && dataExpTime != -1 )
-		h_dataHist->Scale(1/(dataExpTime/365));
+		h_dataHist->Scale(1/(dataExpTime));
 	else
 		h_dataHist->Scale(1/h_dataHist->Integral());
 	h_dataHist->SetLineColor(kBlack);
@@ -172,81 +172,33 @@ void DrawNormStacks(TString mcBkg,TString data,TString mcSig,TString mcSig2, TSt
 	}
 }
 
-int compareDataMC(Int_t cluster, TString histName = "", Bool_t onlyNorm = true, Bool_t onlyRatio = true)
+int compareKralupy(TString histName = "", Bool_t onlyNorm = true, Bool_t onlyRatio = true)
 {
 	gStyle->SetPalette(kRainBow);
 
 	vector<TString> filePaths;
 
-	TString mcBkg = "";
-	TString mcSig = "";
-	TString mcSig2 = "";
-	TString mcAstro = "";
-	TString data = "";
-	Double_t mcBckExpTime = 0;
-	Double_t mcSigExpTime = 0;
-	Double_t mcSig2ExpTime = 0;
-	Double_t mcAstroExpTime = 0;
-	Double_t dataExpTime = 0;
-
-	switch (cluster)
-	{
-		case 3:
-			mcBkg = "/Data/BaikalData/mc/simGVD/cluster3/results_muatm_sep20_c3.reco.cascade.root";
-			// mcBkg = "/Data/BaikalData/mc/simGVD/run-by-run/cluster3/results_muatm_runbyrun_c3.reco.cascade.root";
-			mcSig = "/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/results_nueatm_c3_ver4_50kNoise.reco.cascade.root";
-			mcSig2 = "/Data/BaikalData/mc/ANIS/numuatm_ver4_50kNoise/results_numuatm_c3_ver4_50kNoise.reco.cascade.root";
-			mcAstro = "/Data/BaikalData/mc/ANIS/nueastro_ver4_50kNoise/results_nueastro_c3_ver4_50kNoise.reco.cascade.root";
-			// data = "/Data/BaikalData/reco-cascade/2019/cluster3_full/results_*.reco.cascade.root";
-			data = "/Data/BaikalData/reco-cascade/2019/cluster3/results_*.reco.cascade.root";
-			mcBckExpTime = 133.0845/1.65;
-			// mcBckExpTime = 133.0845;
-			// mcBckExpTime = 241.016; //run-by-run
-			// mcSigExpTime = 147.72;
-			mcSigExpTime = 147.72;
-			// mcSig2ExpTime = 130.442;
-			mcSig2ExpTime = 365;
-			// dataExpTime = 316.963; //full year
-			// dataExpTime = 241.016; //run-by-run
-			mcAstroExpTime = 96.88;
-			dataExpTime = 62.88; ///(first 200 runs)
-			break;
-		case 4:
-			mcBkg = "/Data/BaikalData/mc/simGVD/cluster4/results_muatm_sep20_c4.reco.cascade.root";
-			mcSig = "/Data/BaikalData/mc/ANIS/nueatm/results_nueatm_c5.reco.cascade.root";
-			data = "/Data/BaikalData/reco-cascade/2019/cluster4/reco.cascade.results.root";
-			mcBckExpTime = 130.3993;
-			mcSigExpTime = 147.72;
-			dataExpTime = 77.5543;
-			break;
-		case 5:
-			mcBkg = "/Data/BaikalData/mc/simGVD/cluster5/results_muatm_sep20_c5.reco.cascade.root";
-			mcSig = "/Data/BaikalData/mc/ANIS/nueatm/results_nueatm_c5.reco.cascade.root";
-			data = "/Data/BaikalData/reco-cascade/2019/cluster5/reco.cascade.results.root";
-			mcBckExpTime = 127.8483;
-			mcSigExpTime = 109.5;
-			dataExpTime = 61.5483;
-			break;
-	}
+	TString noStep = "/Data/x17/Geant4/results_test_Pos1_NoStep_1M_Elec1MeV_.06mmDiverg.root";
+	TString stepLimit = "/Data/x17/Geant4/results_test_Pos1_Step10micron_1M_Elec1MeV_.06mmDiverg.root";
 
 	vector<TString> histNames;
 	if (histName == "")
-		histNames = vector<TString>{"h_nHits","h_nHitsReco","h_nStringsReco","h_energyRec","h_thetaRec","h_cosThetaRec","h_OMID","h_chi2","h_like","h_likeHitOnly","h_distanceCS","h_posChange","h_qRatio","h_qRatioRed","h_branchRatio","h_nTrackHits","h_qTrack","h_nTrackHitsSeg","h_qTrackSeg","h_qEarly","h_logPHit","h_tRes","h_chi2Caus","h_nCloseHits","h_qTotal","h_qRecoHits","h_z","h_posError","h_timeError","h_thetaRecError","h_phiRecError"};
+		histNames = vector<TString>{"h_x","h_y","h_z","h_nHits","h_eDep","h_stepLength","h_trackLength"};
 	else
 		histNames = vector<TString>{histName};
 
 	if (!onlyNorm)
 	{
 		if (onlyRatio)
-			DrawRatios(mcBkg,data,mcBckExpTime,dataExpTime,histNames);
-		else
-			DrawStacks(mcBkg,data,mcSig,mcSig2,mcAstro,mcBckExpTime,dataExpTime,mcSigExpTime,mcSig2ExpTime,mcAstroExpTime,histNames);
+			DrawRatios(noStep,stepLimit,1,1,histNames);
+		// else
+			// DrawStacks(mcBkg,data,mcSig,mcSig2,mcAstro,mcBckExpTime,dataExpTime,mcSigExpTime,mcSig2ExpTime,mcAstroExpTime,histNames);
 	}else
 	{
 		if (onlyRatio)
-			DrawNormRatios(mcBkg,data,histNames);
-		else
-			DrawNormStacks(mcBkg,data,mcSig,mcSig2,mcAstro,histNames);
+			DrawNormRatios(noStep,stepLimit,histNames);
+		// else
+			// DrawNormStacks(mcBkg,data,mcSig,mcSig2,mcAstro,histNames);
 	}
 
 	return 0;

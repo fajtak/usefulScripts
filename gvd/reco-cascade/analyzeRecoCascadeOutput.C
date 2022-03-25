@@ -20,7 +20,7 @@
 #include "BMCEvent.h"
 #include "BRunInfo.h"
 
-double SetTChain(TChain &recCasc, int year, int cluster)
+double SetTChain(TChain &recCasc, int year, int cluster, TString &fileName)
 {
 	int startID = cluster!=-1?cluster:1;
 	int endID = cluster!=-1?cluster+1:10;
@@ -33,8 +33,10 @@ double SetTChain(TChain &recCasc, int year, int cluster)
 		for (int i = startID; i < endID; ++i)
 		{
 			// TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d_full/*.reco.cascade.root",j,i);
+			// TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d_runbyrun/*.reco.cascade.root",j,i);
 			TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d/*.reco.cascade.root",j,i);
 			// TString filesDir = Form("/Data/BaikalData/reco-cascade/20%d/cluster%d_beg/*.reco.cascade.root",j,i);
+			fileName = filesDir;
 			recCasc.Add(filesDir);
 		}
 	}
@@ -310,6 +312,12 @@ int SetHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,T
 
 		TH2D* h_nCloseHitsVsCosThetaMC = new TH2D("h_nCloseHitsVsCosThetaMC","Number of close hits Vs. Cos(#theta_{MC}); cos(#theta_{MC}) [1] ; N_{closeHits} [#]; NoE [#]",20,-1,1,20,0,20);
 		histograms2D.insert(std::make_pair("h_nCloseHitsVsCosThetaMC",h_nCloseHitsVsCosThetaMC));
+
+		TH2D* h_genEventsVslogEVsCosTheta = new TH2D("h_genEventsVslogEVsCosTheta","Number of generated events vs. E vs cos(#theta); log_{10}(E [GeV]); cos(#theta) [1]",100,0,10,20,-1,1);
+	    histograms2D.insert(std::make_pair("h_genEventsVslogEVsCosTheta",h_genEventsVslogEVsCosTheta));
+
+		TH2D* h_genEventsVslogEVsCosThetaWeighted = new TH2D("h_genEventsVslogEVsCosThetaWeighted","Number of generated events vs. E vs cos(#theta); log_{10}(E [GeV]); cos(#theta) [1]",100,0,10,20,-1,1);
+	    histograms2D.insert(std::make_pair("h_genEventsVslogEVsCosThetaWeighted",h_genEventsVslogEVsCosThetaWeighted));
 	}
 
 	return histograms.size();
@@ -489,7 +497,7 @@ int DrawHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,
 	return 0;
 }
 
-int SaveHistograms(std::map<std::string,TH1D*> &histograms,TString fileName,int season, int cluster)
+int SaveHistograms(std::map<std::string,TH1D*> &histograms,std::map<std::string,TH2D*> &histograms2D,TString fileName,int season, int cluster)
 {
 
 	TString outputFileName = "";
@@ -504,6 +512,13 @@ int SaveHistograms(std::map<std::string,TH1D*> &histograms,TString fileName,int 
 	{
 		it->second->Write();
 		++it; // and iterate to the next element
+	}
+
+	auto it2D{ histograms2D.cbegin() }; // declare a const iterator and assign to start of vector
+	while (it2D != histograms2D.cend()) // while it hasn't reach the end
+	{
+		it2D->second->Write();
+		++it2D; // and iterate to the next element
 	}
 
 	return 0;
@@ -539,7 +554,7 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 	TChain reconstructedCascades("Events");
 
 	if (fileName == "")
-		SetTChain(reconstructedCascades,year,cluster);
+		SetTChain(reconstructedCascades,year,cluster,fileName);
 	else
 		SetTChain(reconstructedCascades,fileName);
 
@@ -584,19 +599,20 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 	if (calcExpTime)
 		CalculateExpositionTime(reconstructedCascades,expTimePerRun);
 	Float_t eventWeight = 1.0;
+	Int_t nWellRecoCascades = 0;
 
 	for (int i = 0; i < reconstructedCascades.GetEntries(); ++i)
 	{
 		reconstructedCascades.GetEntry(i);
 		if (isMCFile)
 			eventWeight = myCascade->GetEventWeight();
-		if (isMCFile && myMCCascade->GetShowerEnergy() > 10000)
+		if (isMCCascadeFile && myMCCascade->GetNeutrinoEnergy() >= 10000)
 			continue;
 		// if (myCascade->GetFitPos().Z() > 610)
-		if (myCascade->GetFitPos().Z() > (isMCFile?220.3:580))
-			continue;
-		if (myCascade->GetLikelihoodHitOnly() > 1.5)
-			continue;
+		// if (myCascade->GetFitPos().Z() > (isMCFile?220.3:580))
+			// continue;
+		// if (myCascade->GetLikelihoodHitOnly() > 1.5)
+			// continue;
 		// if (myCascade->GetEnergyRec() < 10)
 			// continue;
 		// if (myCascade->GetDistanceCS() > 100)
@@ -607,12 +623,19 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		// if (myCascade->GetNHitsTFil() < 20)
 			// continue;
 
+		// if (myCascade->GetEnergyRec() < 100)
+			// continue;
+		// if (myCascade->GetQEarly() > 30 || myCascade->GetQTrackSeg() > 10 || myCascade->GetNHitsTrackSeg() > 1 || myCascade->GetQRatio() < 60 || myCascade->GetDistanceCS() > 60)
+			// continue;
+
 		// if (myCascade->GetNHitsTrackSeg() > 1)
 			// continue;
 		// if (myCascade->GetEnergyRec() < 10)
 			// continue;
 		// if (myCascade->GetNHitsTFil() < 50)
 		// 	continue;
+		nWellRecoCascades++;
+
 		v_histograms["h_energyRec"]->Fill(myCascade->GetEnergyRec(),eventWeight);
 		v_histograms["h_energyRecError"]->Fill(myCascade->GetEnergyRecError(),eventWeight);
 		v_histograms["h_thetaRec"]->Fill(myCascade->GetThetaRec(),eventWeight);
@@ -658,16 +681,16 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		v_histograms2D["h_nOMsPerRun"]->Fill(myHeader->GetRun(),myCascade->GetNHitsLike(),eventWeight);
 		v_histograms2D["h_runIDVsDayInYear"]->Fill(myHeader->GetRun(),myHeader->GetTimeCC().GetDayOfYear(),eventWeight);
 
-		for (int i = 0; i < myCascade->GetNImpulseIDs(); ++i)
-		{
-			v_histograms["h_OMID"]->Fill(myEvent->HitChannel(myCascade->GetImpulseID(i)),eventWeight);
-			v_histograms["h_tRes"]->Fill(myCascade->GetTResPerHit(i),eventWeight);
-			v_histograms["h_logPHit"]->Fill(myCascade->GetLikePerHit(i),eventWeight);
-			// v_histograms["h_expQ"]->Fill(myCascade->GetExpQPerHit(i),eventWeight);
-			// v_histograms["h_measQ"]->Fill(myEvent->Q(myCascade->GetImpulseID(i)),eventWeight);
-			// v_histograms2D["h_qExpVsQMeas"]->Fill(myCascade->GetExpQPerHit(i),myEvent->Q(myCascade->GetImpulseID(i))/myCascade->GetExpQPerHit(i),eventWeight);
-			// v_histograms2D["h_qExpVsQMeas2"]->Fill(myCascade->GetExpQPerHit(i),myEvent->Q(myCascade->GetImpulseID(i)),eventWeight);
-		}
+		// for (int i = 0; i < myCascade->GetNImpulseIDs(); ++i)
+		// {
+		// 	v_histograms["h_OMID"]->Fill(myEvent->HitChannel(myCascade->GetImpulseID(i)),eventWeight);
+		// 	v_histograms["h_tRes"]->Fill(myCascade->GetTResPerHit(i),eventWeight);
+		// 	v_histograms["h_logPHit"]->Fill(myCascade->GetLikePerHit(i),eventWeight);
+		// 	// v_histograms["h_expQ"]->Fill(myCascade->GetExpQPerHit(i),eventWeight);
+		// 	// v_histograms["h_measQ"]->Fill(myEvent->Q(myCascade->GetImpulseID(i)),eventWeight);
+		// 	// v_histograms2D["h_qExpVsQMeas"]->Fill(myCascade->GetExpQPerHit(i),myEvent->Q(myCascade->GetImpulseID(i))/myCascade->GetExpQPerHit(i),eventWeight);
+		// 	// v_histograms2D["h_qExpVsQMeas2"]->Fill(myCascade->GetExpQPerHit(i),myEvent->Q(myCascade->GetImpulseID(i)),eventWeight);
+		// }
 		if (isMCCascadeFile)
 		{
 			v_histograms["h_energyMC"]->Fill(myMCCascade->GetShowerEnergy(),eventWeight);
@@ -722,6 +745,8 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 			v_histograms2D["h_thetaVsThetaMC"]->Fill(myCascade->GetThetaMC(),myCascade->GetThetaRec(),eventWeight);
 			v_histograms2D["h_phiVsPhiMC"]->Fill(myCascade->GetPhiMC(),myCascade->GetPhiRec(),eventWeight);
 			v_histograms2D["h_nCloseHitsVsCosThetaMC"]->Fill(TMath::Cos(myCascade->GetThetaMC()*TMath::DegToRad()),myCascade->GetNCloseHits(),eventWeight);
+			v_histograms2D["h_genEventsVslogEVsCosTheta"]->Fill(TMath::Log10(myMCCascade->GetNeutrinoEnergy()),trueDir.CosTheta());
+	        v_histograms2D["h_genEventsVslogEVsCosThetaWeighted"]->Fill(TMath::Log10(myMCCascade->GetNeutrinoEnergy()),trueDir.CosTheta(),eventWeight);
 
 		}
 
@@ -742,7 +767,9 @@ int analyzeRecoCascadeOutput(int year = -1, int cluster = -1, bool calcExpTime =
 		}
 
 	DrawHistograms(v_histograms,v_histograms2D,isMCFile);
-	SaveHistograms(v_histograms,fileName,year,cluster);
+	SaveHistograms(v_histograms,v_histograms2D,fileName,year,cluster);
+
+	cout << "Number of cascades: " << nWellRecoCascades << endl;
 
 	return 0;
 }

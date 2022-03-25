@@ -2,4 +2,6 @@
 
 root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/simGVD/cluster3/muatm_sep20_c3.reco.cascade.root\")"
 root -l -q "analyzeRecoCascadeOutput.C+(19,3)"
-root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/ANIS/nueatm_ver3_50kNoise/nueatm_cl3_ver3_50kNoise.reco.cascade.root\")"
+root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/ANIS/nueatm_ver4_50kNoise/nueatm_c3_ver4_50kNoise.reco.cascade.root\")"
+root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/ANIS/numuatm_ver4_50kNoise/numuatm_c3_ver4_50kNoise.reco.cascade.root\")"
+root -l -q "analyzeRecoCascadeOutput.C+(19,3,false,\"/Data/BaikalData/mc/ANIS/nueastro_ver4_50kNoise/nueastro_c3_ver4_50kNoise.reco.cascade.root\")"
