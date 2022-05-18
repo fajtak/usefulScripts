@@ -1,0 +1,17 @@
+#!/bin/bash
+
+root -l -q "../Geant4/kralupyClustered.C+(\"/Data/x17/Kralupy/Run002_G3_1MeV_90Degree_0.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_160V_352K_Ud100/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_260V_352K_Ud100/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud80/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud120/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_332K_Ud100/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_372K_Ud100/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_cps25/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_cps100/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_depth10um/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_depth2um/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr550e/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr1100e/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr200e/ClusterFiles/root/data_CSAEmul_noADCres.root\")"

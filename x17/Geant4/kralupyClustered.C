@@ -25,10 +25,10 @@ int SetHistograms(std::map<TString,TH1D*> &histograms)
 	TH1D* h_clusterMeanY = new TH1D("h_clusterMeanY","Cluster mean Y ;Y_{cluster} [#];NoE [#]",256,0,256);
 	histograms.insert(std::make_pair("h_clusterMeanY",h_clusterMeanY));
 
-	TH1D* h_clusterHeightKeV = new TH1D("h_clusterHeightKeV","Cluster height keV ;Height_{cluster} [keV];NoE [#]",600,0,1200);
+	TH1D* h_clusterHeightKeV = new TH1D("h_clusterHeightKeV","Cluster height keV ;Height_{cluster} [keV];NoE [#]",900,0,1800);
 	histograms.insert(std::make_pair("h_clusterHeightKeV",h_clusterHeightKeV));
 
-	TH1D* h_clusterVolumeKeV = new TH1D("h_clusterVolumeKeV","Cluster volume keV ;Volume_{cluster} [keV];NoE [#]",600,0,1200);
+	TH1D* h_clusterVolumeKeV = new TH1D("h_clusterVolumeKeV","Cluster volume keV ;Volume_{cluster} [keV];NoE [#]",900,0,1800);
 	histograms.insert(std::make_pair("h_clusterVolumeKeV",h_clusterVolumeKeV));
 
 	TH1D* h_ToTKeV = new TH1D("h_ToTKeV","ToT ;ToT [keV];NoE [#]",600,0,1200);
@@ -40,8 +40,14 @@ int SetHistograms(std::map<TString,TH1D*> &histograms)
 	TH1D* h_clusterVolumeCentroidY = new TH1D("h_clusterVolumeCentroidY","Cluster volume centroid Y;Y_{clusterVolCentroid} [#];NoE [#]",256,0,256);
 	histograms.insert(std::make_pair("h_clusterVolumeCentroidY",h_clusterVolumeCentroidY));
 
-	TH1D* h_deltaToA = new TH1D("h_deltaToA","Delta ToA ;Delta ToA [#];NoE [#]",250,0,500);
+	TH1D* h_deltaToA = new TH1D("h_deltaToA","Delta ToA ;Delta ToA [#];NoE [#]",200,0,1.5625*200);
 	histograms.insert(std::make_pair("h_deltaToA",h_deltaToA));
+
+	TH1D* h_deltaToA5to10 = new TH1D("h_deltaToA5to10","Delta ToA ;Delta ToA [#];NoE [#]",200,0,1.5625*200);
+	histograms.insert(std::make_pair("h_deltaToA5to10",h_deltaToA5to10));
+
+	TH1D* h_deltaToA20to30 = new TH1D("h_deltaToA20to30","Delta ToA ;Delta ToA [#];NoE [#]",200,0,1.5625*200);
+	histograms.insert(std::make_pair("h_deltaToA20to30",h_deltaToA20to30));
 
 	return 0;
 }
@@ -76,14 +82,15 @@ int SaveHistograms(std::map<TString,TH1D*> &histograms, TString fileName)
 	return 0;
 }
 
-int kralupyClustered()
+int kralupyClustered(TString fileName,Bool_t energyCorr = false)
 {
 	// TString fileName = "/home/fajtak/work/allpix-squared/output/kralupy_noStep/ClusterFiles/root/data_CSAEmul_noADCres.root";
 	// TString fileName = "/home/fajtak/work/allpix-squared/output/kralupy_step10micron/ClusterFiles/root/data_CSAEmul_noADCres.root";
 	// TString fileName = "/Data/x17/Kralupy/Run002_G3_1MeV_90Degree_Pos2_0.root";
 	// TString fileName = "/Data/x17/Kralupy/Run002_G3_1MeV_90Degree_0.root";
-	TString fileName = "/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.09mm/ClusterFiles/root/data_CSAEmul_noADCres.root";
+	// TString fileName = "/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.09mm/ClusterFiles/root/data_CSAEmul_noADCres.root";
 	// TString fileName = "/home/fajtak/work/allpix-squared/output/kralupy_pos1_noStep_1MeV_0.09mm/ClusterFiles/root/data_CSAEmul_noADCres.root";
+	// TString fileName = "/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_352K_holes_H/ClusterFiles/root/data_CSAEmul_noADCres.root";
 	TFile* inputFile = new TFile(fileName);
 	TTree* tree = (TTree*)inputFile->Get("clusteredData");
 
@@ -91,7 +98,8 @@ int kralupyClustered()
 	Short_t pixX[500], pixY[500];
 	Float_t ToTKeV[500];
 	Float_t clusterMeanX, clusterMeanY, clusterHeightKeV, clusterVolumeKeV, clusterVolumeCentroidX, clusterVolumeCentroidY;
-	Double_t deltaToA;
+	Double_t deltaToA, minToA;
+	Double_t ToA[500];
 
 	tree->SetBranchAddress("clstrSize",&clusterSize);
 	tree->SetBranchAddress("PixX",pixX);
@@ -104,6 +112,8 @@ int kralupyClustered()
 	tree->SetBranchAddress("clstrVolCentroidX",&clusterVolumeCentroidX);
 	tree->SetBranchAddress("clstrVolCentroidY",&clusterVolumeCentroidY);
 	tree->SetBranchAddress("delta_ToA",&deltaToA);
+	tree->SetBranchAddress("min_ToA",&minToA);
+	tree->SetBranchAddress("ToA",&ToA);
 
 	std::map<TString,TH1D*> histograms;
 	SetHistograms(histograms);
@@ -115,15 +125,23 @@ int kralupyClustered()
 		histograms["h_clusterMeanX"]->Fill(clusterMeanX);
 		histograms["h_clusterMeanY"]->Fill(clusterMeanY);
 		histograms["h_clusterHeightKeV"]->Fill(clusterHeightKeV);
-		histograms["h_clusterVolumeKeV"]->Fill(clusterVolumeKeV);
+		histograms["h_clusterVolumeKeV"]->Fill(energyCorr?clusterVolumeKeV*4/3:clusterVolumeKeV);
 		histograms["h_clusterVolumeCentroidX"]->Fill(clusterVolumeCentroidX);
 		histograms["h_clusterVolumeCentroidY"]->Fill(clusterVolumeCentroidY);
 		histograms["h_deltaToA"]->Fill(deltaToA);
+		if (clusterSize > 4 && clusterSize < 11)
+			histograms["h_deltaToA5to10"]->Fill(deltaToA);
+		if (clusterSize > 19 && clusterSize < 31)
+			histograms["h_deltaToA20to30"]->Fill(deltaToA);
+
+		// cout << minToA << endl;
+		// cout << deltaToA << endl;
 		for (int j = 0; j < clusterSize; ++j)
 		{
 			histograms["h_pixX"]->Fill(pixX[j]);
 			histograms["h_pixY"]->Fill(pixY[j]);
 			histograms["h_ToTKeV"]->Fill(ToTKeV[j]);
+			// cout << "\t" << ToA[j] << endl;
 		}
 	}
 

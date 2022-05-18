@@ -1,0 +1,8 @@
+#!/bin/bash
+
+root -l -q "../Geant4/kralupyClustered.C+(\"/Data/x17/Kralupy/Run002_G3_1MeV_90Degree_0.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_150V_293K/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_352K/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_352K_holes/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_352K_holes_HH/ClusterFiles/root/data_CSAEmul_noADCres.root\")"
+root -l -q "../Geant4/kralupyClustered.C+(\"/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_352K_holes_H/ClusterFiles/root/data_CSAEmul_noADCres.root\")"

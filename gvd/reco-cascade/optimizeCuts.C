@@ -33,6 +33,9 @@ int SetHistograms(std::map<TString,TH1D*> &histograms,std::map<TString,TH2D*> &h
 	TH1D* h_chargePerHit = new TH1D("h_chargePerHit","Charge per hit; Q/Hit [p.e./#]; NoE [#]",1000,0,1000);
 	histograms.insert(std::make_pair("h_chargePerHit",h_chargePerHit));
 
+	TH1D* h_chi2 = new TH1D("h_chi2","Chi^2; #chi^{2} [1]; NoE [#]",1000,0,1000);
+	histograms.insert(std::make_pair("h_chi2",h_chi2));
+
 	TH1D* h_initMismatchPosition = new TH1D("h_initMismatchPosition","Mismatch position; Initial mismatch position [m]; NoE [#]",100,0,1000);
 	histograms.insert(std::make_pair("h_initMismatchPosition",h_initMismatchPosition));
 
@@ -41,6 +44,9 @@ int SetHistograms(std::map<TString,TH1D*> &histograms,std::map<TString,TH2D*> &h
 
 	TH1D* h_causHitPurity = new TH1D("h_causHitPurity","Causality Hit purity; Hit selection purity [%]; NoE*eventWeight [1]",110,0,110);
 	histograms.insert(std::make_pair("h_causHitPurity",h_causHitPurity));
+
+	TH1D* h_causHitEfficiency = new TH1D("h_causHitEfficiency","Causality Hit efficiency; Hit selection efficiency [%]; NoE*eventWeight [1]",110,0,110);
+	histograms.insert(std::make_pair("h_causHitEfficiency",h_causHitEfficiency));
 
 	TH1D* h_hitEfficiency = new TH1D("h_hitEfficiency","Hit efficiency; Hit selection efficiency [%]; NoE*eventWeight [1]",110,0,110);
 	histograms.insert(std::make_pair("h_hitEfficiency",h_hitEfficiency));
@@ -53,6 +59,12 @@ int SetHistograms(std::map<TString,TH1D*> &histograms,std::map<TString,TH2D*> &h
 
 	TH1D* h_nHitsDiff = new TH1D("h_nHitsDiff","Number of hits difference; #Delta N_{hits} [#]; NoE*eventWeight [1]",220,-110,110);
 	histograms.insert(std::make_pair("h_nHitsDiff",h_nHitsDiff));
+
+	TH1D* h_zDistanceSignalHits = new TH1D("h_zDistanceSignalHits","Distance of signal hits; #delta Z [m]; NoE [#]",1000,0,1000);
+	histograms.insert(std::make_pair("h_zDistanceSignalHits",h_zDistanceSignalHits));
+
+	TH1D* h_zDistanceNoiseHits = new TH1D("h_zDistanceNoiseHits","Distance of noise hits; #delta Z [m]; NoE [#]",1000,0,1000);
+	histograms.insert(std::make_pair("h_zDistanceNoiseHits",h_zDistanceNoiseHits));
 
 	TH2D* h_initMisPosVsChi2 = new TH2D("h_initMisPosVsChi2","Initial mismatch position vs chi2; Initial mismatch position [m]; #chi^{2} [1]; NoE [#]",100,0,1000,100,0,1000);
 	histograms2D.insert(std::make_pair("h_initMisPosVsChi2",h_initMisPosVsChi2));
@@ -71,6 +83,13 @@ int SetHistograms(std::map<TString,TH1D*> &histograms,std::map<TString,TH2D*> &h
 
 	TH2D* h_initMisPosVsNNoiseHits = new TH2D("h_initMisPosVsNNoiseHits","Initial mismatch position vs number of noise hits; Initial mismatch position [m]; N_{noiseHits} [#]; NoE [#]",100,0,1000,20,0,20);
 	histograms2D.insert(std::make_pair("h_initMisPosVsNNoiseHits",h_initMisPosVsNNoiseHits));
+
+	TH2D* h_initMisPosVsChi2Init = new TH2D("h_initMisPosVsChi2Init","Initial mismatch position vs initial chi2; Initial mismatch position [m]; #chi^{2}_{init} [1]; NoE [#]",100,0,1000,1000,0,10000);
+	histograms2D.insert(std::make_pair("h_initMisPosVsChi2Init",h_initMisPosVsChi2Init));
+
+	TH2D* h_misPosVsNHits = new TH2D("h_misPosVsNHits","Mismatch position vs number of hits after TFilter; Mismatch position [m]; N_{hits}^{Tfil} [#]; NoE [#]",100,0,1000,100,0,100);
+	histograms2D.insert(std::make_pair("h_misPosVsNHits",h_misPosVsNHits));
+
 
 	return 0;
 }
@@ -122,7 +141,10 @@ int PrintEvent(BEvent* myEvent, BRecoCascade* myCascade, BGeomTel* myGeom, BMCCa
 	{
 		cout << setprecision(4) << i << "\t" << myEvent->HitChannel(i) << "\t" << myEvent->Q(i) << "\t" << myEvent->T(i) << "\t" << myMCCascade->GetPulse(myEvent->Hit(i).GetUniqueID())->GetMagic() << "\t\t\t";
 		if (i < myCascade->GetNCausImpulseIDs())
-			cout << setprecision(4) << myEvent->HitChannel(myCascade->GetCausImpulseID(i)) << "\t" << myMCCascade->GetPulse(myEvent->Hit(myCascade->GetCausImpulseID(i)).GetUniqueID())->GetMagic() << "\t" << myEvent->Q(myCascade->GetCausImpulseID(i)) << "\t\t" << myEvent->T(myCascade->GetCausImpulseID(i)) << "\t" << myGeom->GetX(myEvent->HitChannel(myCascade->GetCausImpulseID(i))) << "\t\t" << myGeom->GetY(myEvent->HitChannel(myCascade->GetCausImpulseID(i))) << "\t\t" << myGeom->GetZ(myEvent->HitChannel(myCascade->GetCausImpulseID(i))) << "\t" << (myCascade->GetPosMC()-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag()/BARS::Phys::c_baikal*1e9 - myEvent->T(myCascade->GetCausImpulseID(i)) << "\t" << (myCascade->GetFitPos()-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag()/BARS::Phys::c_baikal*1e9 - myEvent->T(myCascade->GetCausImpulseID(i)) ;
+			cout << setprecision(4) << myEvent->HitChannel(myCascade->GetCausImpulseID(i)) << "\t" << myMCCascade->GetPulse(myEvent->Hit(myCascade->GetCausImpulseID(i)).GetUniqueID())->GetMagic() << "\t" << myEvent->Q(myCascade->GetCausImpulseID(i)) << "\t\t" << myEvent->T(myCascade->GetCausImpulseID(i)) << "\t\t\t";
+			// cout << setprecision(4) << myEvent->HitChannel(myCascade->GetCausImpulseID(i)) << "\t" << myMCCascade->GetPulse(myEvent->Hit(myCascade->GetCausImpulseID(i)).GetUniqueID())->GetMagic() << "\t" << myEvent->Q(myCascade->GetCausImpulseID(i)) << "\t\t" << myEvent->T(myCascade->GetCausImpulseID(i)) << "\t" << myGeom->GetX(myEvent->HitChannel(myCascade->GetCausImpulseID(i))) << "\t\t" << myGeom->GetY(myEvent->HitChannel(myCascade->GetCausImpulseID(i))) << "\t\t" << myGeom->GetZ(myEvent->HitChannel(myCascade->GetCausImpulseID(i))) << "\t" << (myCascade->GetPosMC()-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag()/BARS::Phys::c_baikal*1e9 - myEvent->T(myCascade->GetCausImpulseID(i)) << "\t" << (myCascade->GetFitPos()-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag()/BARS::Phys::c_baikal*1e9 - myEvent->T(myCascade->GetCausImpulseID(i)) << "\t" << (myCascade->GetFitPos()-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag() << "\t" << (myCascade->GetInitPos()-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag()/BARS::Phys::c_baikal*1e9 - myEvent->T(myCascade->GetCausImpulseID(i)) + myCascade->GetInitTime() << "\t" << (myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(0)))-myGeom->GetPosition(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))).Mag();
+		if (i < myCascade->GetNImpulseIDs())
+			cout << setprecision(4) << myEvent->HitChannel(myCascade->GetImpulseID(i)) << "\t" << myMCCascade->GetPulse(myEvent->Hit(myCascade->GetImpulseID(i)).GetUniqueID())->GetMagic() << "\t" << myEvent->Q(myCascade->GetImpulseID(i)) << "\t\t" << myEvent->T(myCascade->GetImpulseID(i)) << "\t\t\t";
 		cout << endl;
 	}
 
@@ -179,11 +201,13 @@ int optimizeCuts(TString fileName = "")
 
 	BMCCascadeEvent* myMCCascade = NULL;
     TBranch* b_mcCascade = reconstructedCascades.FindBranch("BMCCascadeEvent.");
-    // if (!b_mcCascade)
-    // {
+    Bool_t muonBundle = false;
+    if (!b_mcCascade)
+    {
+    	muonBundle = true;
     // 	std::cout << "Could not find the BMCCascadeEvent branch on tree Events, cannot continue." << std::endl;
     //     return -1;
-    // }else
+    }else
     {
     	reconstructedCascades.SetBranchAddress("BMCCascadeEvent.", &myMCCascade);
     }
@@ -203,57 +227,82 @@ int optimizeCuts(TString fileName = "")
 	for (int i = 0; i < reconstructedCascades.GetEntries(); ++i)
 	{
 		reconstructedCascades.GetEntry(i);
-		// eventWeight = myCascade->GetEventWeight();
+		eventWeight = myCascade->GetEventWeight();
 
-		// if ((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag() > 100 && myCascade->GetNHitsCaus() > 30)
-		// if (myCascade->GetChi2Caus() > 80)
-		// // if (i == 7354)
-		// {
-		// 	cout << i << "\t" << myHeader->GetEventIDCC() << endl;
-		// 	cout << myCascade->GetChi2Caus() << endl;
-		// 	myCascade->GetPosMC().Print();
-		// 	myCascade->GetInitPos().Print();
-		// 	myCascade->GetFitPos().Print();
-		// 	PrintEvent(myEvent,myCascade,myGeom,myMCCascade,v_histograms2D);
-		// }
-
+		Int_t nSignalCausHitsReco = 0;
 		Int_t nSignalHitsTrue = 0;
 		Int_t nNoiseHitsTrue = 0;
-		// for (int i = 0; i < myMCCascade->GetNHits(); ++i)
-		// {
-		// 	if (myMCCascade->GetPulse(i)->GetMagic() > 0)
-		// 		nSignalHitsTrue++;
-		// 	if (myMCCascade->GetPulse(i)->GetMagic() == 0)
-		// 		nNoiseHitsTrue++;
-		// }
 		Int_t nSignalHitsReco = 0;
-		// for (int i = 0; i < myCascade->GetNImpulseIDs(); ++i)
-		// {
-		// 	if (myMCCascade->GetPulse(myEvent->Hit(myCascade->GetImpulseID(i)).GetUniqueID())->GetMagic() > 0)
-		// 		nSignalHitsReco++;
-		// }
-		Int_t nSignalCausHitsReco = 0;
-		// for (int i = 0; i < myCascade->GetNCausImpulseIDs(); ++i)
-		// {
-		// 	if (myMCCascade->GetPulse(myEvent->Hit(myCascade->GetCausImpulseID(i)).GetUniqueID())->GetMagic() > 0)
-		// 		nSignalCausHitsReco++;
-		// }
-		Int_t nCausHits = myCascade->GetNCausImpulseIDs();
 
+		if (!muonBundle)
+		{
+			// if ((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag() > 50 && myCascade->GetNHitsCaus() > 30)
+			// if ((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag() < 10 && myCascade->GetChi2Init() > 100 && myCascade->GetDistanceCSMC() < 60 && myCascade->GetPosMC().Z() < 250 && myCascade->GetPosMC().Z() > -250)
+			// if (myCascade->GetChi2Init() > 1000)
+			// if (myCascade->GetChi2Caus() > 80)
+			 // if (i == 39961 || i == 39962)
+			// if (myCascade->GetNHitsTFil()-myCascade->GetNHitsCaus() < 0)
+			if (true)
+			{
+				cout << i << "\t" << myHeader->GetEventIDCC() << endl;
+				cout << myCascade->GetChi2Init() << endl;
+				cout << myCascade->GetInitTime() << endl;
+				cout << myCascade->GetChi2Caus() << endl;
+				cout << myCascade->GetInitPrec() << endl;
+				myCascade->GetPosMC().Print();
+				myCascade->GetInitPos().Print();
+				myCascade->GetFitPos().Print();
+				PrintEvent(myEvent,myCascade,myGeom,myMCCascade,v_histograms2D);
+			}
+
+			for (int i = 0; i < myMCCascade->GetNHits(); ++i)
+			{
+				if (myMCCascade->GetPulse(i)->GetMagic() > 0)
+					nSignalHitsTrue++;
+				if (myMCCascade->GetPulse(i)->GetMagic() == 0)
+					nNoiseHitsTrue++;
+			}
+			for (int i = 0; i < myCascade->GetNImpulseIDs(); ++i)
+			{
+				if (myMCCascade->GetPulse(myEvent->Hit(myCascade->GetImpulseID(i)).GetUniqueID())->GetMagic() > 0)
+					nSignalHitsReco++;
+			}
+			for (int i = 0; i < myCascade->GetNCausImpulseIDs(); ++i)
+			{
+				if (myMCCascade->GetPulse(myEvent->Hit(myCascade->GetCausImpulseID(i)).GetUniqueID())->GetMagic() > 0)
+				{
+					nSignalCausHitsReco++;
+					v_histograms["h_zDistanceSignalHits"]->Fill(TMath::Abs(myGeom->GetZ(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))-myGeom->GetZ(myEvent->HitChannel(myCascade->GetCausImpulseID(0)))));
+				}else
+				{
+					v_histograms["h_zDistanceNoiseHits"]->Fill(TMath::Abs(myGeom->GetZ(myEvent->HitChannel(myCascade->GetCausImpulseID(i)))-myGeom->GetZ(myEvent->HitChannel(myCascade->GetCausImpulseID(0)))));
+				}
+
+			}
+		}
+
+		Int_t nCausHits = myCascade->GetNCausImpulseIDs();
 
 		v_histograms["h_chargePerHit"]->Fill(myCascade->GetQTotal()/myCascade->GetNHitsCaus(),eventWeight);
 		v_histograms["h_nHitsCaus"]->Fill(myCascade->GetNHitsCaus(),eventWeight);
 		v_histograms["h_nHitsFit"]->Fill(myCascade->GetNHitsTFil(),eventWeight);
 		v_histograms["h_nHitsDiff"]->Fill(myCascade->GetNHitsTFil()-myCascade->GetNHitsCaus(),eventWeight);
+		v_histograms["h_chi2"]->Fill(myCascade->GetChi2Caus(),eventWeight);
 		v_histograms2D["h_initMisPosVsChi2"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),myCascade->GetChi2Caus(),eventWeight);
 		v_histograms2D["h_initMisPosVsInitPrec"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),TMath::Sqrt(myCascade->GetInitPrec()),eventWeight);
 		v_histograms2D["h_initMisPosVsQTotal"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),myCascade->GetQTotal(),eventWeight);
 		v_histograms2D["h_initMisPosVsNHitsCaus"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),myCascade->GetNHitsCaus(),eventWeight);
+		v_histograms2D["h_misPosVsNHits"]->Fill((myCascade->GetPosMC()-myCascade->GetFitPos()).Mag(),myCascade->GetNHitsTFil(),eventWeight);
 		v_histograms2D["h_initMisPosVsDistanceCS"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),myCascade->GetDistanceCS(),eventWeight);
-		v_histograms["h_initMismatchPosition"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag());
-		v_histograms["h_fitMismatchPosition"]->Fill((myCascade->GetPosMC()-myCascade->GetFitPos()).Mag());
-		v_histograms2D["h_initMisPosVsNNoiseHits"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),nCausHits-nSignalCausHitsReco);
-		v_histograms["h_causHitPurity"]->Fill((double)nSignalCausHitsReco/myCascade->GetNCausImpulseIDs()*100,eventWeight);
+		v_histograms["h_initMismatchPosition"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),eventWeight);
+		v_histograms2D["h_initMisPosVsChi2Init"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),myCascade->GetChi2Init(),eventWeight);
+		v_histograms["h_fitMismatchPosition"]->Fill((myCascade->GetPosMC()-myCascade->GetFitPos()).Mag(),eventWeight);
+		if (!muonBundle)
+		{
+			v_histograms2D["h_initMisPosVsNNoiseHits"]->Fill((myCascade->GetPosMC()-myCascade->GetInitPos()).Mag(),nCausHits-nSignalCausHitsReco);
+			v_histograms["h_causHitPurity"]->Fill((double)nSignalCausHitsReco/myCascade->GetNCausImpulseIDs()*100,eventWeight);
+			v_histograms["h_causHitEfficiency"]->Fill((double)nSignalCausHitsReco/nSignalHitsTrue*100,eventWeight);
+		}
 	}
 
 	DrawHistograms(v_histograms,v_histograms2D);

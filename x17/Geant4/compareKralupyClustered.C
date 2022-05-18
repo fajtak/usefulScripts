@@ -182,6 +182,7 @@ int compareKralupyClustered(TString histName = "", Bool_t onlyNorm = true, Bool_
 
 	vector<tuple<TString,TString,double>> filePaths;
 
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 200e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr200e/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
 	// filePaths.push_back(std::make_tuple("Data","/Data/x17/Kralupy/results_Run002_G3_1MeV_90Degree_0.root",1));
 	// filePaths.push_back(std::make_tuple("0.08mm","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
 	// filePaths.push_back(std::make_tuple("0.0977mm","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.0977mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
@@ -190,15 +191,55 @@ int compareKralupyClustered(TString histName = "", Bool_t onlyNorm = true, Bool_
 	// filePaths.push_back(std::make_tuple("0.06mm","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.06mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
 	// filePaths.push_back(std::make_tuple("0.06mm - noStep","/home/fajtak/work/allpix-squared/output/kralupy_pos1_noStep_1MeV_0.06mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
 
-	filePaths.push_back(std::make_tuple("Data","/Data/x17/Kralupy/results_Run002_G3_1MeV_90Degree_Pos2_0.root",1));
-	filePaths.push_back(std::make_tuple("0.08mm","/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.08mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
-	filePaths.push_back(std::make_tuple("0.06mm","/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.06mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
-	filePaths.push_back(std::make_tuple("0.09mm","/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.09mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("Data","/Data/x17/Kralupy/results_Run002_G3_1MeV_90Degree_Pos2_0.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm","/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.08mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.06mm","/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.06mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.09mm","/home/fajtak/work/allpix-squared/output/kralupy_pos2_step10micron_1MeV_0.09mm/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 150V, 293K","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_150V_293K/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 200V, 293K","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_293K/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 200V, 352K","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_200V_352K/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 150V, 352K","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_150V_352K/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 160V, 352K, holes, J","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_160V_352K_Ud100/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 260V, 352K, holes, J","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_260V_352K_Ud100/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 100V","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 80V","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud80/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 120V","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud120/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 100V","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 332K, holes, J, Ud = 100V","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_332K_Ud100/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 372K, holes, J, Ud = 100V","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_372K_Ud100/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 100V, CPS = 50","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 100V, CPS = 25","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_cps25/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, Ud = 100V, CPS = 100","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_cps100/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, depth = 5 um","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, depth = 2 um","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_depth2um/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, depth = 10 um","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_depth10um/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 850e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 550e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr550e/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 1100e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr1100e/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 200e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_Ud100_thr200e/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	// filePaths.push_back(std::make_tuple("Data","/Data/x17/Kralupy/results_Run001_G3_0.5MeV_90Degree_0.root",1));
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 200e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_0.5MeV_0.08mmDiverg/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+	filePaths.push_back(std::make_tuple("Data","/Data/x17/Kralupy/results_Run003_G3_1.5MeV_0Degree_0.root",1));
+	filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J, thr = 200e","/home/fajtak/work/allpix-squared/output/kralupy_pos1_1.5MeV_0.08mmDiverg/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
+
+
+
+	// filePaths.push_back(std::make_tuple("0.08mm, 210V, 352K, holes, J","/home/fajtak/work/allpix-squared/output/kralupy_pos1_step10micron_1MeV_0.08mm_210V_352K_holes_J/ClusterFiles/root/results_data_CSAEmul_noADCres.root",1));
 
 
 	vector<TString> histNames;
 	if (histName == "")
-		histNames = vector<TString>{"h_clusterSize","h_pixX","h_pixY","h_clusterMeanX","h_clusterMeanY","h_clusterHeightKeV","h_clusterVolumeKeV","h_clusterVolumeCentroidX","h_clusterVolumeCentroidY","h_deltaToA","h_ToTKeV"};
+		histNames = vector<TString>{"h_clusterSize","h_pixX","h_pixY","h_clusterMeanX","h_clusterMeanY","h_clusterHeightKeV","h_clusterVolumeKeV","h_clusterVolumeCentroidX","h_clusterVolumeCentroidY","h_deltaToA","h_deltaToA5to10","h_deltaToA20to30","h_ToTKeV"};
 	else
 		histNames = vector<TString>{histName};
 
